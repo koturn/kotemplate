@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<project name="<+CURSOR+><-ARG1->" default="all" basedir=".">
+  <property name="src.dir" value="src"/>
+  <property name="bin.dir" value="bin"/>
+  <property name="javadoc.dir" value="javadoc"/>
+  <property name="jar.name" value="<-ARG1->.jar"/>
+  <property name="src.encoding" value="utf-8"/>
+  <property name="dst.encoding" value="utf-8"/>
+  <property name="main.class" value="<-ARG2->"/>
+
+  <target name="all" depends="build.jar"/>
+
+  <!-- Convert to exe file with exewrap -->
+  <!--
+  <property name="exe.name" value="Template.exe"/>
+  <target name="build.exe" depends="build.jar">
+    <exec executable="exewrap" failonerror="true">
+      <arg line="-d file-description"/>
+      <arg line="-g -t 1.5 -v 1.0.0.0 -e SINGLE;NOLOG -j ${jar.name} -o ${exe.name}"/>
+    </exec>
+  </target>
+  -->
+
+  <!-- Make Jar file -->
+  <target name="build.jar" depends="compile">
+    <jar jarfile="${jar.name}">
+      <fileset dir="${bin.dir}"/>
+      <fileset dir="./" includes="resource/"/>
+      <manifest>
+        <attribute name="Main-Class" value="${main.class}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <!-- Compile java files -->
+  <target name="compile">
+    <mkdir dir="${bin.dir}"/>
+    <javac srcdir="${src.dir}" destdir="${bin.dir}" encoding="${src.encoding}" includeantruntime="false"/>
+  </target>
+
+  <!-- Make javadoc -->
+  <target name="javadoc">
+    <javadoc destdir="${javadoc.dir}" encoding="${src.encoding}" docencoding="${dst.encoding}" charset="${dst.encoding}" access="private">
+      <fileset dir="${src.dir}"/>
+    </javadoc>
+  </target>
+
+  <!-- Clean objects -->
+  <target name="clean">
+    <delete file="${jar.name}"/>
+    <delete>
+      <fileset dir="${bin.dir}" includes="*.class"/>
+    </delete>
+    <delete>
+      <fileset dir="${javadoc.dir}" includes="*"/>
+    </delete>
+  </target>
+  <target name="objclean">
+    <delete>
+      <fileset dir="${bin.dir}" includes="*.class"/>
+    </delete>
+  </target>
+</project>
