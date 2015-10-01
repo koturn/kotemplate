@@ -15,7 +15,7 @@
 #elif defined(__GNUC__)
 #  define <+FILE_CAPITAL+>_DLLEXPORT  __attribute__((dllexport))
 #else
-#  define DLLEXPORT
+#  define <+FILE_CAPITAL+>_DLLEXPORT
 #endif
 
 #ifdef __cplusplus
@@ -31,4 +31,5 @@ extern "C" {
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif  /* __cplusplus */
+#undef <+FILE_CAPITAL+>_DLLEXPORT
 #endif  /* <+FILE_CAPITAL+>_H */
