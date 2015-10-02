@@ -24,7 +24,7 @@ With [NeoBundle](https://github.com/Shougo/neobundle.vim).
 NeoBundle '<+AUTHOR+>/<+DIR+>'
 ```
 
-If you want to use ''':NeoBundleLazy''', write following code in your .vimrc.
+If you want to use ```:NeoBundleLazy```, write following code in your .vimrc.
 
 ```VimL
 NeoBundleLazy '<+AUTHOR+>/<+DIR+>'
@@ -59,7 +59,7 @@ Plug '<+AUTHOR+>/<+DIR+>'
 ```
 
 If you don't want to use plugin manager, put files and directories on
-```~/.vim/```, or ```%HOME%/vimfiles``` on Windows.
+```~/.vim/```, or ```%HOME%/vimfiles/``` on Windows.
 
 
 ## LICENSE
