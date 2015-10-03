@@ -10,6 +10,9 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+let g:<+FILEBASE+>#variable = get(g:, '<+FILEBASE+>#variable', 0)
+
+
 function! <+FILEBASE+>#<+CURSOR+>template()
 endfunction
 
