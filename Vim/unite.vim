@@ -26,7 +26,6 @@ let s:source = {
 
 function! s:source.action_table.my_action.func(candidate) abort
   " Write actions
-  " a:candidate: Selected one candidate from return value from s:source.gather_candidates()
   <+CURSOR+>
 endfunction
 
