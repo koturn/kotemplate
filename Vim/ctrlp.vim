@@ -22,6 +22,7 @@ let g:loaded_ctrlp_<+FILEBASE+> = 1
 "   command! CtrlP<+FILE_PASCAL+> call ctrlp#init(ctrlp#<+FILEBASE+>#id())
 " endif
 
+let s:id = ctrlp#getvar('g:ctrlp_builtins') + len(g:ctrlp_ext_vars)
 let s:<+FILEBASE+>_var = {
       \ 'init': 'ctrlp#<+FILEBASE+>#init()',
       \ 'accept': 'ctrlp#<+FILEBASE+>#accept',
@@ -39,7 +40,6 @@ else
   let g:ctrlp_ext_vars = [s:<+FILEBASE+>_var]
 endif
 
-let s:id = g:ctrlp_builtins + len(g:ctrlp_ext_vars)
 function! ctrlp#<+FILEBASE+>#id() abort
   return s:id
 endfunction
