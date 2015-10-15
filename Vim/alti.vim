@@ -39,7 +39,8 @@ function! alti#<+FILEBASE+>#enter() abort
 endfunction
 
 function! alti#<+FILEBASE+>#cmpl(context) abort
-  return filter(['apple', 'banana', 'cake'], 'stridx(tolower(v:val), tolower(a:arglead)) == 0')
+  let arglead = tolower(a:context.arglead)
+  return filter(['apple', 'banana', 'cake'], '!stridx(tolower(v:val), arglead)')
 endfunction
 
 function! alti#<+FILEBASE+>#prompt(context) abort
@@ -51,7 +52,7 @@ function! alti#<+FILEBASE+>#insertstr(context) abort
 endfunction
 
 function! alti#<+FILEBASE+>#submitted(context, line) abort
-  echo a:input
+  echo a:context.inputs[0]
 endfunction
 
 function! alti#<+FILEBASE+>#canceled(context, line) abort
