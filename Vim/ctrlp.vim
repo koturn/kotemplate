@@ -9,12 +9,11 @@
 " ============================================================================
 let s:save_cpo = &cpo
 set cpo&vim
-
-
 if exists('g:loaded_ctrlp_<+FILEBASE+>') && g:loaded_ctrlp_<+FILEBASE+>
   finish
 endif
 let g:loaded_ctrlp_<+FILEBASE+> = 1
+let s:ctrlp_builtins = ctrlp#getvar('g:ctrlp_builtins')
 
 
 " Don't forget append following code to plugin/<+FILE+>
@@ -22,7 +21,6 @@ let g:loaded_ctrlp_<+FILEBASE+> = 1
 "   command! CtrlP<+FILE_PASCAL+> call ctrlp#init(ctrlp#<+FILEBASE+>#id())
 " endif
 
-let s:id = ctrlp#getvar('g:ctrlp_builtins') + len(g:ctrlp_ext_vars)
 let s:<+FILEBASE+>_var = {
       \ 'init': 'ctrlp#<+FILEBASE+>#init()',
       \ 'accept': 'ctrlp#<+FILEBASE+>#accept',
@@ -39,6 +37,8 @@ if exists('g:ctrlp_ext_vars') && !empty(g:ctrlp_ext_vars)
 else
   let g:ctrlp_ext_vars = [s:<+FILEBASE+>_var]
 endif
+let s:id = s:ctrlp_builtins + len(g:ctrlp_ext_vars)
+unlet s:ctrlp_builtins
 
 function! ctrlp#<+FILEBASE+>#id() abort
   return s:id
