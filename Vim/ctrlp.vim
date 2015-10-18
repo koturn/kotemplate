@@ -30,10 +30,11 @@ let s:<+FILEBASE+>_var = {
       \ 'enter': 'ctrlp#<+FILEBASE+>#enter()',
       \ 'exit': 'ctrlp#<+FILEBASE+>#exit()',
       \ 'opts': 'ctrlp#<+FILEBASE+>#opts()',
-      \ 'sort': 0
+      \ 'sort': 0,
+      \ 'nolim': 1
       \}
 if exists('g:ctrlp_ext_vars') && !empty(g:ctrlp_ext_vars)
-  let g:ctrlp_ext_vars = add(g:ctrlp_ext_vars, s:<+FILEBASE+>_var)
+  call add(g:ctrlp_ext_vars, s:<+FILEBASE+>_var)
 else
   let g:ctrlp_ext_vars = [s:<+FILEBASE+>_var]
 endif
