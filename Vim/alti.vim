@@ -34,13 +34,12 @@ function! alti#<+FILEBASE+>#define() abort
   return s:define
 endfunction
 
-function! alti#<+FILEBASE+>#enter() abort
-  " Write initialize: get filetype etc...
+function! alti#<+FILEBASE+>#enter() abort dict
+  let self.candidates = ['apple', 'banana', 'cake']
 endfunction
 
-function! alti#<+FILEBASE+>#cmpl(context) abort
-  let arglead = tolower(a:context.arglead)
-  return filter(['apple', 'banana', 'cake'], '!stridx(tolower(v:val), arglead)')
+function! alti#<+FILEBASE+>#cmpl(context) abort dict
+  return a:context.fuzzy_filtered(self.candidates)
 endfunction
 
 function! alti#<+FILEBASE+>#prompt(context) abort
@@ -52,7 +51,7 @@ function! alti#<+FILEBASE+>#insertstr(context) abort
 endfunction
 
 function! alti#<+FILEBASE+>#submitted(context, line) abort
-  echo a:context.inputs[0]
+  echo a:context.selection
 endfunction
 
 function! alti#<+FILEBASE+>#canceled(context, line) abort
