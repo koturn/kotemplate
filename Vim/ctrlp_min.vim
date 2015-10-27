@@ -21,32 +21,34 @@ let s:ctrlp_builtins = ctrlp#getvar('g:ctrlp_builtins')
 "   command! CtrlP<+FILE_PASCAL+> call ctrlp#init(ctrlp#<+FILEBASE+>#id())
 " endif
 
-let s:<+FILEBASE+>_var = {
-      \ 'init': 'ctrlp#<+FILEBASE+>#init()',
-      \ 'accept': 'ctrlp#<+FILEBASE+>#accept',
+function! s:get_sid() abort
+  return matchstr(expand('<sfile>'), '^function <SNR>\zs\d\+\ze_get_sid$')
+endfunction
+let s:sid_prefix = '<SNR>' . s:get_sid() . '_'
+let g:ctrlp_ext_vars = add(get(g:, 'ctrlp_ext_vars', []), {
+      \ 'init': s:sid_prefix . 'init()',
+      \ 'accept': s:sid_prefix . 'accept',
       \ 'lname': '<+FILEBASE+>',
       \ 'sname': '<+FILEBASE+>',
       \ 'type': 'line',
       \ 'nolim': 1
-      \}
-if exists('g:ctrlp_ext_vars') && !empty(g:ctrlp_ext_vars)
-  call add(g:ctrlp_ext_vars, s:<+FILEBASE+>_var)
-else
-  let g:ctrlp_ext_vars = [s:<+FILEBASE+>_var]
-endif
+      \})
 let s:id = s:ctrlp_builtins + len(g:ctrlp_ext_vars)
-unlet s:ctrlp_builtins
+delfunction s:get_sid
+unlet s:ctrlp_builtins s:sid_prefix
+
 
 function! ctrlp#<+FILEBASE+>#id() abort
   return s:id
 endfunction
 
-function! ctrlp#<+FILEBASE+>#init() abort
+
+function! s:init() abort
   <+CURSOR+>
   return []
 endfunction
 
-function! ctrlp#<+FILEBASE+>#accept(mode, str) abort
+function! s:accept(mode, str) abort
   call ctrlp#exit()
   " Write actions
 endfunction
