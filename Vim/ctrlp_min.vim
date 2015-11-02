@@ -15,7 +15,6 @@ endif
 let g:loaded_ctrlp_<+FILEBASE+> = 1
 let s:ctrlp_builtins = ctrlp#getvar('g:ctrlp_builtins')
 
-
 " Don't forget append following code to plugin/<+FILE+>
 " if match(split(&runtimepath, ','), 'ctrlp\.vim') != -1
 "   command! CtrlP<+FILE_PASCAL+> call ctrlp#init(ctrlp#<+FILEBASE+>#id())
