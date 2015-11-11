@@ -1,0 +1,12 @@
+{
+  "name": "electronTest",
+  "description": "<+CURSOR+>",
+  "version": "0.0.0",
+  "author": "<+AUtHOR+> <<+MAIL_ADDRESS>>",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron .",
+    "build": "node release.js"
+  },
+  "license": "MIT"
+}
