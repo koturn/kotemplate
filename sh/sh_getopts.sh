@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -eu
 
 show_usage() {
   echo [USAGE]
