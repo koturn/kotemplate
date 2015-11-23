@@ -7,7 +7,7 @@ DVIVIEWER ?= dviout
 RM        ?= rm -f
 
 TEXFLAGS  ?= -src-specials -interaction=nonstopmode
-
+<+CURSOR+>
 TARGET    := report.pdf
 PSFILE    := $(TARGET:%.pdf=%.ps)
 DVIFILE   := $(TARGET:%.pdf=%.dvi)
