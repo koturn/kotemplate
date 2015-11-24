@@ -62,6 +62,17 @@ If you don't want to use plugin manager, put files and directories on
 ```~/.vim/```, or ```%HOME%/vimfiles/``` on Windows.
 
 
+## Dependent plugins
+
+
+## Requirements
+
+### Required
+
+
+### Optional
+
+
 ## LICENSE
 
 This software is released under the MIT License, see [LICENSE](LICENSE).
