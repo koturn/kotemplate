@@ -64,13 +64,19 @@ If you don't want to use plugin manager, put files and directories on
 
 ## Dependent plugins
 
-
-## Requirements
-
 ### Required
 
 
+
+
 ### Optional
+
+
+
+
+## Requirements
+
+
 
 
 ## LICENSE
