@@ -7,12 +7,13 @@
 " ctrlp.vim: https://github.com/ctrlpvim/ctrlp.vim
 " }}}
 " ============================================================================
-let s:save_cpo = &cpo
-set cpo&vim
 if exists('g:loaded_ctrlp_<+FILEBASE+>') && g:loaded_ctrlp_<+FILEBASE+>
   finish
 endif
 let g:loaded_ctrlp_<+FILEBASE+> = 1
+let s:save_cpo = &cpo
+set cpo&vim
+
 let s:ctrlp_builtins = ctrlp#getvar('g:ctrlp_builtins')
 
 " Don't forget append following code to plugin/<+FILE+>
