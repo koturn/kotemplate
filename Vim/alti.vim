@@ -13,11 +13,12 @@ set cpo&vim
 " Don't forget append following code to plugin/<+FILE+>
 " command! -bar Alti<+FILE_PASCAL+> call alti#init(alti#<+FILEBASE+>#define())
 
-function! s:get_sid() abort
-  return matchstr(expand('<sfile>'), '^function <SNR>\zs\d\+\ze_get_sid$')
+function! s:get_sid_prefix() abort
+  return matchstr(expand('<sfile>'), '^function \zs<SNR>\d\+_\zeget_sid_prefix$')
 endfunction
-let s:sid_prefix = '<SNR>' . s:get_sid() . '_'
-delfunction s:get_sid
+let s:sid_prefix = s:get_sid_prefix()
+delfunction s:get_sid_prefix
+
 let s:define = {
       \ 'name': '<+FILEBASE+>',
       \ 'default_text': '',
@@ -34,6 +35,7 @@ let s:define = {
       \ 'actions': {},
       \ 'bind': {}
       \}
+unlet s:sid_prefix
 
 function! alti#<+FILEBASE+>#define() abort
   return s:define

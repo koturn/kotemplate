@@ -21,10 +21,12 @@ let s:ctrlp_builtins = ctrlp#getvar('g:ctrlp_builtins')
 "   command! CtrlP<+FILE_PASCAL+> call ctrlp#init(ctrlp#<+FILEBASE+>#id())
 " endif
 
-function! s:get_sid() abort
-  return matchstr(expand('<sfile>'), '^function <SNR>\zs\d\+\ze_get_sid$')
+function! s:get_sid_prefix() abort
+  return matchstr(expand('<sfile>'), '^function \zs<SNR>\d\+_\zeget_sid_prefix$')
 endfunction
-let s:sid_prefix = '<SNR>' . s:get_sid() . '_'
+let s:sid_prefix = s:get_sid_prefix()
+delfunction s:get_sid_prefix
+
 let g:ctrlp_ext_var = add(get(g:, 'ctrlp_ext_vars', []), {
       \ 'init': s:sid_prefix . 'init()',
       \ 'accept': s:sid_prefix . 'accept',
@@ -38,7 +40,6 @@ let g:ctrlp_ext_var = add(get(g:, 'ctrlp_ext_vars', []), {
       \ 'nolim': 1
       \})
 let s:id = s:ctrlp_builtins + len(g:ctrlp_ext_vars)
-delfunction s:get_sid
 unlet s:ctrlp_builtins s:sid_prefix
 
 
