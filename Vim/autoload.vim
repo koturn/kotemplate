@@ -13,7 +13,7 @@ set cpo&vim
 let g:<+FILEBASE+>#variable = get(g:, '<+FILEBASE+>#variable', 0)
 
 
-function! <+FILEBASE+>#<+CURSOR+>template()
+function! <+FILEBASE+>#<+CURSOR+>template() abort
 endfunction
 
 
