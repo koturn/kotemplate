@@ -16,6 +16,7 @@ let s:converter = {
       \}
 
 function! s:converter.filter(candidates, context) abort
+  <+CURSOR+>
   for candidate in a:candidates
     let candidate.word = candidate.word[0 : 29]
   endfor

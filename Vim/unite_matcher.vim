@@ -16,6 +16,7 @@ let s:matcher = {
       \}
 
 function! s:matcher.filter(candidates, context) abort
+  <+CURSOR+>
   if a:context.input ==# ''
     return unite#filters#filter_matcher(a:candidates, '', a:context)
   endif

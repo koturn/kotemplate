@@ -16,6 +16,7 @@ let s:sorter = {
       \}
 
 function! s:sorter.filter(candidates, context) abort
+  <+CURSOR+>
   return unite#util#sort_by(a:candidates, 'v:val.word')
 endfunction
 
