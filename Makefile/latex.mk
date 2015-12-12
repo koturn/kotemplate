@@ -1,25 +1,25 @@
-TEX       ?= platex
-DVIPDF    ?= dvipdfmx
-DVIPS     ?= dvips
-PDFVIEWER ?= acroread
-GSVIEWER  ?= gv
-DVIVIEWER ?= dviout
-RM        ?= rm -f
+TEX       := platex
+DVIPDF    := dvipdfmx
+DVIPS     := dvips
+PDFVIEWER := acroread
+PSVIEWER  := gv
+DVIVIEWER := dviout
+GNUPLOT   := gnuplot
+RM        := rm -f
 
-TEXFLAGS  ?= -src-specials -interaction=nonstopmode
+TEXFLAGS  := -kanji=utf8 -src-specials -interaction=nonstopmode
 <+CURSOR+>
 TARGET    := report.pdf
-PSFILE    := $(TARGET:%.pdf=%.ps)
-DVIFILE   := $(TARGET:%.pdf=%.dvi)
-TEXFILE   := $(TARGET:%.pdf=%.tex)
-
-AUXFILE   := $(TARGET:%.pdf=%.aux)
-LOGFILE   := $(TARGET:%.pdf=%.log)
+PSFILE    := $(TARGET:.pdf=.ps)
+DVIFILE   := $(TARGET:.pdf=.dvi)
+TEXFILE   := $(TARGET:.pdf=.tex)
+AUXFILE   := $(TARGET:.pdf=.aux)
+LOGFILE   := $(TARGET:.pdf=.log)
 
 TRUSHLIST := $(AUXFILE) $(DVIFILE) $(LOGFILE) $(PSFILE) $(TARGET)
 
 
-.SUFFIXES: .dvi .tex .pdf .ps
+.SUFFIXES: .dvi .eps .pdf .plt .ps .tex
 .dvi.pdf:
 	$(DVIPDF) $*
 .dvi.ps:
@@ -28,6 +28,10 @@ TRUSHLIST := $(AUXFILE) $(DVIFILE) $(LOGFILE) $(PSFILE) $(TARGET)
 	$(TEX) $(TEXFLAGS) $*
 .tex.aux:
 	$(TEX) $(TEXFLAGS) $*
+.plt.eps:
+	$(GNUPLOT) $^
+.plt.tex:
+	$(GNUPLOT) $^
 
 
 .PHONY: all
@@ -53,7 +57,7 @@ viewpdf: $(TARGET)
 
 .PHONY: viewps
 viewps: $(PSFILE)
-	$(GSVIEWER) $< &
+	$(PSVIEWER) $< &
 
 .PHONY: viewdvi
 viewdvi: $(DVIFILE)
