@@ -1,49 +1,49 @@
 ### This Makefile was written for GNU Make. ###
 ifeq ($(DEBUG),true)
-    COPTFLAGS   := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
-    CXXOPTFLAGS := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG
-    LDLIBS      += -lssp
+    OPT_CFLAGS   := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
+    OPT_CXXFLAGS := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG
+	OPT_LDLIBS   := -lssp
 else
 ifeq ($(OPT),true)
-    COPTFLAGS   := -flto -Ofast -march=native -DNDEBUG
-    CXXOPTFLAGS := -flto -Ofast -march=native -DNDEBUG
-    LDOPTFLAGS  := -flto -Ofast -s
+    OPT_CFLAGS   := -flto -Ofast -march=native -DNDEBUG
+    OPT_CXXFLAGS := -flto -Ofast -march=native -DNDEBUG
+    OPT_LDFLAGS  := -flto -Ofast -s
 else
 ifeq ($(LTO),true)
-    COPTFLAGS   := -flto -DNDEBUG
-    CXXOPTFLAGS := -flto -DNDEBUG
-    LDOPTFLAGS  := -flto
+    OPT_CFLAGS   := -flto -DNDEBUG
+    OPT_CXXFLAGS := -flto -DNDEBUG
+    OPT_LDFLAGS  := -flto
 else
-    COPTFLAGS   := -O3 -DNDEBUG
-    CXXOPTFLAGS := -O3 -DNDEBUG
-    LDOPTFLAGS  := -O3 -s
+    OPT_CFLAGS   := -O3 -DNDEBUG
+    OPT_CXXFLAGS := -O3 -DNDEBUG
+    OPT_LDFLAGS  := -O3 -s
 endif
 endif
 endif
 
 ifeq ($(OMP),true)
-    COPTFLAGS   := -fopenmp
-    CXXOPTFLAGS := -fopenmp
-    LDOPTFLAGS  := -fopenmp
+    OPT_CFLAGS   := -fopenmp
+    OPT_CXXFLAGS := -fopenmp
+    OPT_LDFLAGS  := -fopenmp
 else
-    COPTFLAGS   := -Wno-unknown-pragmas
-    CXXOPTFLAGS := -Wno-unknown-pragmas
+    OPT_CFLAGS   := -Wno-unknown-pragmas
+    OPT_CXXFLAGS := -Wno-unknown-pragmas
 endif
 
-C_WARNING_FLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
-                   -Wcast-align -Wcast-qual -Wconversion \
-                   -Wfloat-equal -Wpointer-arith -Wswitch-enum \
-                   -Wwrite-strings -pedantic
-CXX_WARNING_FLAGS := $(C_WARNING_FLAGS) -Weffc++ -Woverloaded-virtual
+WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
+                  -Wcast-align -Wcast-qual -Wconversion \
+                  -Wfloat-equal -Wpointer-arith -Wswitch-enum \
+                  -Wwrite-strings -pedantic
+WARNING_CXXFLAGS := $(WARNING_CFLAGS) -Weffc++ -Woverloaded-virtual
 
-CC       := gcc
+CC       := g++
 CXX      := g++
 # MACROS   := -DMACRO
 # INCS     := -I./include
-CFLAGS   := -pipe $(C_WARNING_FLAGS)   $(COPTFLAGS)   $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
-CXXFLAGS := -pipe $(CXX_WARNING_FLAGS) $(CXXOPTFLAGS) $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
-LDFLAGS  := -pipe $(LDOPTFLAGS)
-# LDLIBS   := -lm
+CFLAGS   := -pipe $(WARNING_CFLAGS)   $(OPT_CFLAGS)   $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
+CXXFLAGS := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
+LDFLAGS  := -pipe $(OPT_LDFLAGS)
+LDLIBS   := $(OPT_LDLIBS)
 TARGET   := template
 OBJ      := $(addsuffix .o, $(basename $(TARGET)))
 SRC      := $(OBJ:%.o=%.cpp)
