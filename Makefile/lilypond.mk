@@ -1,8 +1,8 @@
-PDFVIEWER := "C:/Program Files (x86)/Adobe/Reader 11.0/Reader/AcroRd32.exe"
-GSVIEWER  := "C:/Program Files (x86)/Ghostgum/gsview/gsview32.exe"
-
 LILYPOND  := lilypond
 LILYFLAGS :=
+
+PDFVIEWER := acroread
+PSVIEWER  := gv
 
 BASENAME := piano
 PDFFILE  := $(BASENAME).pdf
@@ -12,11 +12,12 @@ TARGETS  := $(PDFFILE) $(MIDFILE)
 SRC      := $(BASENAME).ly
 
 
-%.mid:
+.SUFFIXES: .ly .mid .pdf .ps
+.ly.mid:
 	$(LILYPOND) $(LILYFLAGS) $(SRC)
-%.pdf:
+.ly.pdf:
 	$(LILYPOND) --pdf $(SRC)
-%.ps:
+.ly.ps:
 	$(LILYPOND) --ps $(SRC)
 
 
@@ -45,7 +46,7 @@ viewpdf: $(PDFFILE)
 
 .PHONY: viewps
 viewps: $(PSFILE)
-	$(GSVIEWER) $< &
+	$(PSVIEWER) $< &
 
 
 .PHONY: clean

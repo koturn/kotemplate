@@ -46,7 +46,7 @@ LDFLAGS  := -pipe $(OPT_LDFLAGS)
 LDLIBS   := $(OPT_LDLIBS)
 TARGET   := template
 OBJ      := $(addsuffix .o, $(basename $(TARGET)))
-SRC      := $(OBJ:%.o=%.cpp)
+SRC      := $(OBJ:.o=.cpp)
 
 ifeq ($(OS),Windows_NT)
     TARGET := $(addsuffix .exe, $(TARGET))
@@ -54,10 +54,13 @@ else
     TARGET := $(addsuffix .out, $(TARGET))
 endif
 
-%.exe:
-	$(CXX) $(LDFLAGS) $(filter %.c %.cc %.cpp %.cxx %.o, $^) $(LDLIBS) -o $@
-%.out:
-	$(CXX) $(LDFLAGS) $(filter %.c %.cc %.cpp %.cxx %.o, $^) $(LDLIBS) -o $@
+.SUFFIXES: .exe .o .out
+.o.exe:
+	$(CXX) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
+.o.out:
+	$(CXX) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
+.o:
+	$(CXX) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
 
 
 .PHONY: all
