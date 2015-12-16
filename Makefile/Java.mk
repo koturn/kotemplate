@@ -11,8 +11,8 @@ RESOURCE_DIR := resource
 MAIN         := <-ARG1->
 TARGET       := $(MAIN).jar
 JD_INDEX     := $(JAVADOC_DIR)/index.html
-MAIN_SRC     := $(SRC_DIR)/$(TARGET:%.jar=%.java)
-MAIN_BIN     := $(BIN_DIR)/$(TARGET:%.jar=%.class)
+MAIN_SRC     := $(SRC_DIR)/$(TARGET:.jar=.java)
+MAIN_BIN     := $(BIN_DIR)/$(TARGET:.jar=.class)
 MANIFEST     := MANIFEST.MF
 SRCS         := $(MAIN_SRC)
 OBJS         := $(MAIN_BIN)
@@ -41,8 +41,8 @@ $(MANIFEST):
 	$(ECHO) "Main-Class: $(MAIN)" > $(MANIFEST)
 
 $(OBJS): $(SRCS)
-	@if [ ! -d $(dir $@) ]; then \
-		$(MKDIR) $(dir $@); \
+	@if [ ! -d $(@D) ]; then \
+		$(MKDIR) $(@D); \
 	fi
 	$(JAVAC) $(JAVAFLAGS) $(MAIN_SRC)
 
