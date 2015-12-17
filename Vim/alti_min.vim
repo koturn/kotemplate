@@ -46,7 +46,13 @@ function! s:prompt(context) abort
 endfunction
 
 function! s:submitted(context, line) abort
-  echo a:context.selection
+  if len(a.context.inputs) == 0
+    for input in a.context.inputs
+      echomsg input
+    endfor
+  else
+    echomsg a:context.selection
+  endif
 endfunction
 
 
