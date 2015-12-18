@@ -7,7 +7,7 @@
 " ctrlp.vim: https://github.com/ctrlpvim/ctrlp.vim
 " }}}
 " ============================================================================
-if exists('g:loaded_ctrlp_<+FILEBASE+>') && g:loaded_ctrlp_<+FILEBASE+>
+if get(g:, 'loaded_ctrlp_<+FILEBASE+>', 0)
   finish
 endif
 let g:loaded_ctrlp_<+FILEBASE+> = 1

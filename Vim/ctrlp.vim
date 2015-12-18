@@ -7,7 +7,7 @@
 " ctrlp.vim: https://github.com/ctrlpvim/ctrlp.vim
 " }}}
 " ============================================================================
-if exists('g:loaded_ctrlp_<+FILEBASE+>') && g:loaded_ctrlp_<+FILEBASE+>
+if get(g:, 'loaded_ctrlp_<+FILEBASE+>', 0)
   finish
 endif
 let g:loaded_ctrlp_<+FILEBASE+> = 1
@@ -32,7 +32,7 @@ let g:ctrlp_ext_var = add(get(g:, 'ctrlp_ext_vars', []), {
       \ 'accept': s:sid_prefix . 'accept',
       \ 'lname': '<+FILEBASE+>',
       \ 'sname': '<+FILEBASE+>',
-      \ 'type': 'line',
+      \ 'type': 'tabs',
       \ 'enter': s:sid_prefix . 'enter()',
       \ 'exit': s:sid_prefix . 'exit()',
       \ 'opts': s:sid_prefix . 'opts()',
@@ -49,18 +49,20 @@ endfunction
 
 
 function! s:init() abort
+  call s:syntax()
   <+CURSOR+>
-  return []
+  return ["apple\tfirst candidate", "banana\tsecond candidate", "cake\tthird candidate"]
 endfunction
 
 function! s:accept(mode, str) abort
   call ctrlp#exit()
   " Write actions
+  "   echo matchstr(a:str, '^.*\ze\t')
 endfunction
 
 function! s:enter() abort
   " Called before s:init()
-  " For example: get filetype
+  "   let s:ft = &filetype
 endfunction
 
 function! s:exit() abort
@@ -69,6 +71,15 @@ endfunction
 
 function! s:opts() abort
   " Set options etc...
+endfunction
+
+
+function! s:syntax() abort
+  if ctrlp#nosy()
+    return
+  endif
+  call ctrlp#hicheck('CtrlP<+FILE_PASCAL+>TabExtra', 'Comment')
+  syntax match CtrlP<+FILE_PASCAL+>TabExtra '\zs\t.*$'
 endfunction
 
 
