@@ -1,8 +1,8 @@
-/*
+/**
  * @author <+AUTHOR+>
  */
 public class <+FILEBASE+> {
-	/*
+	/**
 	 * @brief Entry point of the program
 	 * @param args  Command-line arguments
 	 */
