@@ -15,7 +15,7 @@ clean:
 	done
 
 .PHONY: cleanobj
-objclean:
+cleanobj:
 	@for dir in $(DIR_LIST); do \
 		$(MAKE) -C $$dir $@; \
 	done
