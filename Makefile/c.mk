@@ -1,7 +1,7 @@
 ### This Makefile was written for GNU Make. ###
 ifeq ($(DEBUG),true)
     OPT_CFLAGS  := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
-	OPT_LDLIBS  := -lssp
+    OPT_LDLIBS  := -lssp
 else
 ifeq ($(OPT),true)
     OPT_CFLAGS  := -flto -Ofast -march=native -DNDEBUG
