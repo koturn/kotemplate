@@ -1,7 +1,10 @@
 ### This Makefile was written for GNU Make. ###
 ifeq ($(DEBUG),true)
     OPT_CFLAGS   := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
-    OPT_CXXFLAGS := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG
+ifneq ($(shell echo $$OSTYPE),cygwin)
+    OPT_CFLAGS   := $(OPT_CFLAGS) -fsanitize=address -fno-omit-frame-pointer
+endif
+    OPT_CXXFLAGS := $(OPT_CFLAGS) -D_GLIBCXX_DEBUG
     OPT_LDLIBS   := -lssp
 else
 ifeq ($(OPT),true)
