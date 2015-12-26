@@ -21,10 +21,10 @@ endif
 endif
 
 ifeq ($(OMP),true)
-    OPT_CFLAGS  := -fopenmp
-    OPT_LDFLAGS := -fopenmp
+    OPT_CFLAGS  := $(OPT_CFLAGS) -fopenmp
+    OPT_LDFLAGS := $(OPT_LDFLAGS) -fopenmp
 else
-    OPT_CFLAGS  := -Wno-unknown-pragmas
+    OPT_CFLAGS  := $(OPT_CFLAGS) -fopenmp
 endif
 
 WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
