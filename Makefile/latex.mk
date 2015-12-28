@@ -8,8 +8,8 @@ GNUPLOT   := gnuplot
 RM        := rm -f
 
 TEXFLAGS  := -kanji=utf8 -src-specials -interaction=nonstopmode
-<+CURSOR+>
-TARGET    := report.pdf
+
+TARGET    := <+CURSOR+>.pdf
 PSFILE    := $(TARGET:.pdf=.ps)
 DVIFILE   := $(TARGET:.pdf=.dvi)
 TEXFILE   := $(TARGET:.pdf=.tex)

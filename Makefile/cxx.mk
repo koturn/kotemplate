@@ -47,7 +47,7 @@ CFLAGS   := -pipe $(WARNING_CFLAGS)   $(OPT_CFLAGS)   $(INCS) $(MACROS) $(if $(S
 CXXFLAGS := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
 LDFLAGS  := -pipe $(OPT_LDFLAGS)
 LDLIBS   := $(OPT_LDLIBS)
-TARGET   := template
+TARGET   := <+CURSOR+>
 OBJ      := $(addsuffix .o, $(basename $(TARGET)))
 SRC      := $(OBJ:.o=.cpp)
 

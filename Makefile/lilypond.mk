@@ -4,7 +4,7 @@ LILYFLAGS :=
 PDFVIEWER := acroread
 PSVIEWER  := gv
 
-BASENAME := piano
+BASENAME := <+CURSOR+>
 PDFFILE  := $(BASENAME).pdf
 PSFILE   := $(BASENAME).ps
 MIDFILE  := $(BASENAME).mid

@@ -8,7 +8,7 @@ SRC_DIR      := src
 BIN_DIR      := bin
 JAVADOC_DIR  := javadoc
 RESOURCE_DIR := resource
-MAIN         := <-ARG1->
+MAIN         := <+CURSOR+>
 TARGET       := $(MAIN).jar
 JD_INDEX     := $(JAVADOC_DIR)/index.html
 MAIN_SRC     := $(SRC_DIR)/$(TARGET:.jar=.java)

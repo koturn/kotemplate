@@ -27,7 +27,7 @@ MACROS   = $(MSVC_MACROS)
 CFLAGS   = /nologo $(COPTFLAGS) /W4 /c $(INCS) $(MACROS)
 LDFLAGS  = /nologo $(LDOPTFLAGS)
 # LDLIBS   =
-TARGET   = template.exe
+TARGET   = <+CURSOR+>.exe
 OBJ      = $(TARGET:.exe=.obj)
 SRC      = $(TARGET:.exe=.c)
 # MAKEFILE = msvc.mk

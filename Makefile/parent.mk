@@ -1,6 +1,6 @@
 MAKE     ?= make
 DIR_LIST := apple/ banana/ cake/
-
+<+CURSOR+>
 
 .PHONY: all
 all:

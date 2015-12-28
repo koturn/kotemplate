@@ -23,7 +23,7 @@ MACROS   = /DDISABLE_PRAGMA_LINK $(MSVC_MACROS)
 CFLAGS   = /nologo $(COPTFLAGS) /W4 /c
 LDFLAGS  = /nologo $(LDOPTFLAGS)
 LDLIBS   = /link gdi32.lib user32.lib
-TARGET   = winapp.exe
+TARGET   = <+CURSOR+>.exe
 OBJ      = $(TARGET:.exe=.obj)
 SRC      = $(TARGET:.exe=.c)
 
