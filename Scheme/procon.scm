@@ -4,7 +4,7 @@
                           (if (or (eof-object? a) (eof-object? b))
                             #f
                             (begin (display a)
-                                   (display a)
+                                   (display b)
                                    <+CURSOR+>
                                    (main-loop)))))))
     (main-loop)))
