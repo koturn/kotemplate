@@ -39,17 +39,23 @@ WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
                   -Wwrite-strings -pedantic
 WARNING_CXXFLAGS := $(WARNING_CFLAGS) -Weffc++ -Woverloaded-virtual
 
-CC       := g++
-CXX      := g++
+
+CC         := gcc
+CXX        := g++
+CTAGS      := ctags
 # MACROS   := -DMACRO
 # INCS     := -I./include
-CFLAGS   := -pipe $(WARNING_CFLAGS)   $(OPT_CFLAGS)   $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
-CXXFLAGS := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
-LDFLAGS  := -pipe $(OPT_LDFLAGS)
-LDLIBS   := $(OPT_LDLIBS)
-TARGET   := <+CURSOR+>
-OBJ      := $(addsuffix .o, $(basename $(TARGET)))
-SRC      := $(OBJ:.o=.cpp)
+STDCFLAG   := $(if $(STD), $(addprefix -std=, $(STDC)),)
+STDCXXFLAG := $(if $(STD), $(addprefix -std=, $(STDCXX)),)
+CFLAGS     := -pipe $(STCDCFLAG) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
+CXXFLAGS   := -pipe $(STCDCXXFLAG) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
+LDFLAGS    := -pipe $(OPT_LDFLAGS)
+LDLIBS     := $(OPT_LDLIBS)
+CTAGSFLAGS := -R --languages=c,c++
+TARGET     := <+CURSOR+>
+SRCS       := $(addsuffix .cpp, $(basename $(TARGET)))
+OBJS       := $(SRCS:.cpp=.o)
+DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
     TARGET := $(addsuffix .exe, $(TARGET))
@@ -58,26 +64,39 @@ else
 endif
 
 .SUFFIXES: .exe .o .out
-.o.exe:
-	$(CXX) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
-.o.out:
-	$(CXX) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
-.o:
-	$(CXX) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
+%.exe:
+	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
+%.out:
+	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
 
 
 .PHONY: all
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJS)
 
-$(OBJ): $(SRC)
+$(OBJS): $(SRCS)
 
+
+-include: $(DEPENDS)
+
+.PHONY: depends
+depends:
+	$(CXX) -MM $(SRCS) > $(DEPENDS)
+
+
+.PHONY: syntax
+syntax:
+	$(CXX) $(SRCS) $(STCDCXXFLAG) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
+
+.PHONY: ctags
+ctags:
+	$(CTAGS) $(CTAGSFLAGS)
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET) $(OBJ)
+	$(RM) $(TARGET) $(OBJS)
 
 .PHONY: cleanobj
 cleanobj:
-	$(RM) $(OBJ)
+	$(RM) $(OBJS)
