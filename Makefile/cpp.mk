@@ -40,22 +40,23 @@ WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
 WARNING_CXXFLAGS := $(WARNING_CFLAGS) -Weffc++ -Woverloaded-virtual
 
 
-CC         := gcc
-CXX        := g++
-CTAGS      := ctags
-# MACROS   := -DMACRO
-# INCS     := -I./include
-STDCFLAG   := $(if $(STD), $(addprefix -std=, $(STDC)),)
-STDCXXFLAG := $(if $(STD), $(addprefix -std=, $(STDCXX)),)
-CFLAGS     := -pipe $(STCDCFLAG) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
-CXXFLAGS   := -pipe $(STCDCXXFLAG) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
-LDFLAGS    := -pipe $(OPT_LDFLAGS)
-LDLIBS     := $(OPT_LDLIBS)
-CTAGSFLAGS := -R --languages=c,c++
-TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .cpp, $(basename $(TARGET)))
-OBJS       := $(SRCS:.cpp=.o)
-DEPENDS    := depends.mk
+CC           := gcc
+CXX          := g++
+RM           := rm -f
+CTAGS        := ctags
+# MACROS       := -DMACRO
+# INCS         := -I./include
+STD_CFLAGS   := $(if $(STDC), $(addprefix -std=, $(STDC)),)
+STD_CXXFLAGS := $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),)
+CFLAGS       := -pipe $(STD_CFLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
+CXXFLAGS     := -pipe $(STD_CXXFLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
+LDFLAGS      := -pipe $(OPT_LDFLAGS)
+LDLIBS       := $(OPT_LDLIBS)
+CTAGSFLAGS   := -R --languages=c,c++
+TARGET       := <+CURSOR+>
+SRCS         := $(addsuffix .cpp, $(basename $(TARGET)))
+OBJS         := $(SRCS:.cpp=.o)
+DEPENDS      := depends.mk
 
 ifeq ($(OS),Windows_NT)
     TARGET := $(addsuffix .exe, $(TARGET))
@@ -63,7 +64,6 @@ else
     TARGET := $(addsuffix .out, $(TARGET))
 endif
 
-.SUFFIXES: .exe .o .out
 %.exe:
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
 %.out:
@@ -75,10 +75,10 @@ all: $(TARGET)
 
 $(TARGET): $(OBJS)
 
-$(OBJS): $(SRCS)
+# $(OBJS): $(SRCS)
 
 
--include: $(DEPENDS)
+-include $(DEPENDS)
 
 .PHONY: depends
 depends:
@@ -87,7 +87,7 @@ depends:
 
 .PHONY: syntax
 syntax:
-	$(CXX) $(SRCS) $(STCDCXXFLAG) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
+	$(CXX) $(SRCS) $(STD_CXXFLAGS) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
 
 .PHONY: ctags
 ctags:

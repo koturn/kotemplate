@@ -24,7 +24,7 @@ ifeq ($(OMP),true)
     OPT_CFLAGS  := $(OPT_CFLAGS) -fopenmp
     OPT_LDFLAGS := $(OPT_LDFLAGS) -fopenmp
 else
-    OPT_CFLAGS  := $(OPT_CFLAGS) -fopenmp
+    OPT_CFLAGS  := $(OPT_CFLAGS) -Wno-unknown-pragmas
 endif
 
 WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
@@ -32,15 +32,20 @@ WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
                   -Wfloat-equal -Wpointer-arith -Wswitch-enum \
                   -Wwrite-strings -pedantic
 
-CC       := gcc
-# MACROS   := -DMACRO
-# INCS     := -I./include
-CFLAGS   := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS) $(if $(STD), $(addprefix -std=, $(STD)),)
-LDFLAGS  := -pipe $(OPT_LDFLAGS)
-LDLIBS   := $(OPT_LDLIBS)
-TARGET   := <+CURSOR+>
-OBJ      := $(addsuffix .o, $(basename $(TARGET)))
-SRC      := $(OBJ:.o=.c)
+CC         := gcc
+RM         := rm -f
+CTAGS      := ctags
+# MACROS     := -DMACRO
+# INCS       := -I./include
+STD_CFLAGS := $(if $(STDC), $(addprefix -std=, $(STDC)),)
+CFLAGS     := -pipe $(STD_CFLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
+LDFLAGS    := -pipe $(OPT_LDFLAGS)
+CTAGSFLAGS := -R --languages=c
+LDLIBS     := $(OPT_LDLIBS)
+TARGET     := <+CURSOR+>
+SRCS       := $(addsuffix .c, $(basename $(TARGET)))
+OBJS       := $(SRCS:.c=.o)
+DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
     TARGET := $(addsuffix .exe, $(TARGET))
@@ -48,27 +53,39 @@ else
     TARGET := $(addsuffix .out, $(TARGET))
 endif
 
-.SUFFIXES: .exe .o .out
-.o.exe:
+%.exe:
 	$(CC) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
-.o.out:
-	$(CC) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
-.o:
+%.out:
 	$(CC) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
 
 
 .PHONY: all
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJS)
 
-$(OBJ): $(SRC)
+# $(OBJS): $(SRCS)
 
+
+-include $(DEPENDS)
+
+.PHONY: depends
+depends:
+	$(CC) -MM $(SRCS) > $(DEPENDS)
+
+
+.PHONY: syntax
+syntax:
+	$(CXX) $(SRCS) $(STD_CFLAGS) -fsyntax-only $(WARNING_CFLAGS) $(INCS) $(MACROS)
+
+.PHONY: ctags
+ctags:
+	$(CTAGS) $(CTAGSFLAGS)
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET) $(OBJ)
+	$(RM) $(TARGET) $(OBJS)
 
 .PHONY: cleanobj
 cleanobj:
-	$(RM) $(OBJ)
+	$(RM) $(OBJS)
