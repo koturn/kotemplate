@@ -21,13 +21,11 @@ SRC      := $(BASENAME).ly
 	$(LILYPOND) --ps $(SRC)
 
 
-.PHONY: all
+.PHONY: all pdf ps viewpdf viewps clean
 all: $(TARGETS)
 
-.PHONY: pdf
 pdf: $(PDFFILE)
 
-.PHONY: ps
 ps: $(PSFILE)
 
 
@@ -40,15 +38,11 @@ $(PSFILE): $(SRC)
 $(MIDFILE): $(SRC)
 
 
-.PHONY: viewpdf
 viewpdf: $(PDFFILE)
 	$(PDFVIEWER) $< &
 
-.PHONY: viewps
 viewps: $(PSFILE)
 	$(PSVIEWER) $< &
 
-
-.PHONY: clean
 clean:
 	$(RM) $(TARGETS) *.log *.ps

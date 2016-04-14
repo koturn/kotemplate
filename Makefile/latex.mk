@@ -34,13 +34,11 @@ TRUSHLIST := $(AUXFILE) $(DVIFILE) $(LOGFILE) $(PSFILE) $(TARGET)
 	$(GNUPLOT) $^
 
 
-.PHONY: all
+.PHONY: all pdf ps viewpdf viewps viewdvi clean
 all: $(DVIFILE)
 
-.PHONY: pdf
 pdf: $(TARGET)
 
-.PHONY: ps
 ps: $(PSFILE)
 
 
@@ -51,18 +49,14 @@ $(DVIFILE): $(TEXFILE) $(AUXFILE)
 $(AUXFILE): $(TEXFILE)
 
 
-.PHONY: viewpdf
 viewpdf: $(TARGET)
 	$(PDFVIEWER) $< &
 
-.PHONY: viewps
 viewps: $(PSFILE)
 	$(PSVIEWER) $< &
 
-.PHONY: viewdvi
 viewdvi: $(DVIFILE)
 	$(DVIVIEWER) $< &
 
-.PHONY: clean
 clean:
 	$(RM) $(TRUSHLIST) *.pbm

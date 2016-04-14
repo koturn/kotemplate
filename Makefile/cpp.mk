@@ -70,7 +70,7 @@ endif
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
 
 
-.PHONY: all
+.PHONY: all depends syntax ctags clean cleanobj
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -80,23 +80,17 @@ $(TARGET): $(OBJS)
 
 -include $(DEPENDS)
 
-.PHONY: depends
 depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
 
-
-.PHONY: syntax
 syntax:
 	$(CXX) $(SRCS) $(STD_CXXFLAGS) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
 
-.PHONY: ctags
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
-.PHONY: clean
 clean:
 	$(RM) $(TARGET) $(OBJS)
 
-.PHONY: cleanobj
 cleanobj:
 	$(RM) $(OBJS)

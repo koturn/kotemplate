@@ -27,12 +27,8 @@ JAVADOCFLAGS := -sourcepath $(SRC_DIR) -encoding $(SRC_CHARSET) -d $(JAVADOC_DIR
                 -charset $(DST_CHARSET) -docencoding $(DST_CHARSET) -private
 
 
-.PHONY: all
+.PHONY: all javadoc clean cleanobj
 all: $(TARGET)
-
-.PHONY: javadoc
-javadoc: $(JD_INDEX)
-
 
 $(TARGET): $(OBJS) $(MANIFEST)
 	$(JAR) $(JARFLAGS) $@ $(MANIFEST) -C $(dir $<) . $(RESOURCE_DIR)
@@ -46,13 +42,15 @@ $(OBJS): $(SRCS)
 	fi
 	$(JAVAC) $(JAVAFLAGS) $(MAIN_SRC)
 
+
+javadoc: $(JD_INDEX)
+
 $(JD_INDEX): $(SRC_DIR)/*.java
 	$(JAVADOC) $(JAVADOCFLAGS) $^
 
 
-.PHONY: clean
 clean:
 	$(RM) $(TARGET) $(BIN_DIR)/*.class $(JAVADOC_DIR)/*
-.PHONY: objclean
+
 objclean:
 	$(RM) $(BIN_DIR)/*.class $(JAVADOC_DIR)/*
