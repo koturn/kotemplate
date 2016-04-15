@@ -42,6 +42,8 @@ WARNING_CXXFLAGS := $(WARNING_CFLAGS) -Weffc++ -Woverloaded-virtual
 
 CC           := gcc
 CXX          := g++
+MKDIR        := mkdir -p
+CP           := cp
 RM           := rm -f
 CTAGS        := ctags
 # MACROS       := -DMACRO
@@ -56,6 +58,7 @@ CTAGSFLAGS   := -R --languages=c,c++
 TARGET       := <+CURSOR+>
 SRCS         := $(addsuffix .cpp, $(basename $(TARGET)))
 OBJS         := $(SRCS:.cpp=.o)
+INSTALLDIR   := $(if $(PREFIX), $(PREFIX),/usr/local)/bin
 DEPENDS      := depends.mk
 
 ifeq ($(OS),Windows_NT)
@@ -70,7 +73,7 @@ endif
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
 
 
-.PHONY: all depends syntax ctags clean cleanobj
+.PHONY: all depends syntax ctags install uninstall clean cleanobj
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -88,6 +91,15 @@ syntax:
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
+
+install: $(INSTALLDIR)/$(TARGET)
+
+$(INSTALLDIR)/$(TARGET): $(TARGET)
+	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
+	$(CP) $< $@
+
+uninstall:
+	$(RM) $(INSTALLDIR)/$(TARGET)
 
 clean:
 	$(RM) $(TARGET) $(OBJS)
