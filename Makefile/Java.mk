@@ -2,17 +2,18 @@ JAVAC        := javac
 JAR          := jar
 JAVADOC      := javadoc
 ECHO         := echo
-MKDIR        := mkdir
+MKDIR        := mkdir -p
+RM           := rm -f
 
 SRC_DIR      := src
 BIN_DIR      := bin
 JAVADOC_DIR  := javadoc
 RESOURCE_DIR := resource
 MAIN         := <+CURSOR+>
-TARGET       := $(MAIN).jar
+TARGET       := $(lastword $(subst ., ,$(MAIN))).jar
 JD_INDEX     := $(JAVADOC_DIR)/index.html
-MAIN_SRC     := $(SRC_DIR)/$(TARGET:.jar=.java)
-MAIN_BIN     := $(BIN_DIR)/$(TARGET:.jar=.class)
+MAIN_SRC     := $(SRC_DIR)/$(subst .,/,$(MAIN)).java
+MAIN_BIN     := $(BIN_DIR)/$(subst .,/,$(MAIN)).class
 MANIFEST     := MANIFEST.MF
 SRCS         := $(MAIN_SRC)
 OBJS         := $(MAIN_BIN)
@@ -31,15 +32,13 @@ JAVADOCFLAGS := -sourcepath $(SRC_DIR) -encoding $(SRC_CHARSET) -d $(JAVADOC_DIR
 all: $(TARGET)
 
 $(TARGET): $(OBJS) $(MANIFEST)
-	$(JAR) $(JARFLAGS) $@ $(MANIFEST) -C $(dir $<) . $(RESOURCE_DIR)
+	$(JAR) $(JARFLAGS) $@ $(MANIFEST) -C $(BIN_DIR) . $(RESOURCE_DIR)
 
 $(MANIFEST):
 	$(ECHO) "Main-Class: $(MAIN)" > $(MANIFEST)
 
 $(OBJS): $(SRCS)
-	@if [ ! -d $(@D) ]; then \
-		$(MKDIR) $(@D); \
-	fi
+	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(JAVAC) $(JAVAFLAGS) $(MAIN_SRC)
 
 
