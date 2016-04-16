@@ -1,14 +1,14 @@
 /*!
- * @brief Template C-source file
+ * @brief Template C++-source file
  *
- * This is a template C-source file
+ * This is a template C++-source file
  * @author  <+AUTHOR+>
  * @date    <+DATE+>
  * @file    <+FILE+>
  * @version 0.1
  */
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <iostream>
 
 
 /*!
@@ -17,10 +17,11 @@
  * @param [in] argv  Command line arguments
  * @return  Exit-status
  */
-int
-main(int argc, const char *argv[])
+auto
+main(int argc, const char *argv[]) -> int
 {
-  printf("Hello World!\n");
+  std::cout << "Hello World!" << std::endl;
   <+CURSOR+>
   return EXIT_SUCCESS;
 }
+
