@@ -32,15 +32,14 @@ WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
                   -Wfloat-equal -Wpointer-arith -Wswitch-enum \
                   -Wwrite-strings -pedantic
 
-CC         := gcc
+CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),)
 MKDIR      := mkdir -p
 CP         := cp
 RM         := rm -f
 CTAGS      := ctags
 # MACROS   := -DMACRO
 # INCS     := -I./include
-STD_CFLAGS := $(if $(STDC), $(addprefix -std=, $(STDC)),)
-CFLAGS     := -pipe $(STD_CFLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
+CFLAGS     := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
 LDFLAGS    := -pipe $(OPT_LDFLAGS)
 CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
@@ -64,11 +63,10 @@ endif
 
 .PHONY: all depends syntax ctags install uninstall clean cleanobj
 all: $(TARGET)
-
 $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
-
+# $(eval $(shell $(CC) -MM $(SRCS)))
 
 -include $(DEPENDS)
 
@@ -82,7 +80,6 @@ ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
 install: $(INSTALLDIR)/$(TARGET)
-
 $(INSTALLDIR)/$(TARGET): $(TARGET)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
