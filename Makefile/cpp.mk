@@ -40,18 +40,16 @@ WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
 WARNING_CXXFLAGS := $(WARNING_CFLAGS) -Weffc++ -Woverloaded-virtual
 
 
-CC           := gcc
-CXX          := g++
+CC           := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),)
+CXX          := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),)
 MKDIR        := mkdir -p
 CP           := cp
 RM           := rm -f
 CTAGS        := ctags
 # MACROS       := -DMACRO
 # INCS         := -I./include
-STD_CFLAGS   := $(if $(STDC), $(addprefix -std=, $(STDC)),)
-STD_CXXFLAGS := $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),)
-CFLAGS       := -pipe $(STD_CFLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
-CXXFLAGS     := -pipe $(STD_CXXFLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
+CFLAGS       := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
+CXXFLAGS     := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
 LDFLAGS      := -pipe $(OPT_LDFLAGS)
 LDLIBS       := $(OPT_LDLIBS)
 CTAGSFLAGS   := -R --languages=c,c++
@@ -75,10 +73,10 @@ endif
 
 .PHONY: all depends syntax ctags install uninstall clean cleanobj
 all: $(TARGET)
-
 $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
+# $(eval $(shell $(CXX) -MM $(SRCS)))
 
 
 -include $(DEPENDS)
@@ -93,7 +91,6 @@ ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
 install: $(INSTALLDIR)/$(TARGET)
-
 $(INSTALLDIR)/$(TARGET): $(TARGET)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
