@@ -18,6 +18,13 @@ parse_arguments(int argc, char *argv[]);
 static void
 show_usage(const char *progname);
 
+static void
+showVersion(void);
+
+
+#define VERSION "0.1"
+#define AUTHOR "<+AUTHOR+>"
+
 
 /*!
  * @brief Entry point of the program
@@ -46,7 +53,7 @@ parse_arguments(int argc, char *argv[])
   int i, ret;
 
   printf("[Specified options]\n");
-  while ((ret = getopt(argc, argv, "ab:c:h")) != -1) {
+  while ((ret = getopt(argc, argv, "ab:c:hv")) != -1) {
     switch (ret) {
       case 'a':  /* -a */
         printf("  -a\n");
@@ -59,6 +66,9 @@ parse_arguments(int argc, char *argv[])
         break;
       case 'h':  /* -h */
         show_usage(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'v':  /* -v */
+        showVersion();
         exit(EXIT_SUCCESS);
       case '?':  /* unknown option */
         show_usage(argv[0]);
@@ -101,6 +111,22 @@ show_usage(const char *progname)
       "  -b BANANA\n"
       "    banana banana banana\n"
       "  -c CAKE\n"
-      "    cake cake cake\n");
+      "    cake cake cake\n"
+      "  -h\n"
+      "    Show help of this program\n"
+      "  -v\n"
+      "    Show version of this program\n");
 }
 
+
+/*!
+ * @brief Show version of this program
+ */
+static void
+showVersion(void)
+{
+  printf(
+      "Version: " VERSION "\n"
+      "Build date: " __DATE__ ", " __TIME__ "\n"
+      "Compiled by: " AUTHOR "\n");
+}

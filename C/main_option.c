@@ -18,6 +18,13 @@ parse_arguments(int argc, char *argv[]);
 static void
 show_usage(const char *progname);
 
+static void
+showVersion(void);
+
+
+#define VERSION "0.1"
+#define AUTHOR "<+AUTHOR+>"
+
 
 /*!
  * @brief Entry point of the program
@@ -45,15 +52,16 @@ parse_arguments(int argc, char *argv[])
 #define N_REQUIRED_REMAININGS 1
   int i, ret, optidx;
   static const struct option OPTIONS[] = {
-    {"apple",  no_argument,       NULL, 'a'},
-    {"banana", required_argument, NULL, 'b'},
-    {"cake",   optional_argument, NULL, 'c'},
-    {"help",   no_argument,       NULL, 'h'},
-    {0, 0, 0, 0}  /* must be filled with zero */
+    {"apple",   no_argument,       NULL, 'a'},
+    {"banana",  required_argument, NULL, 'b'},
+    {"cake",    optional_argument, NULL, 'c'},
+    {"help",    no_argument,       NULL, 'h'},
+    {"version", no_argument,       NULL, 'v'},
+    {NULL, 0, NULL, '\0'}  /* must be filled with zero */
   };
 
   printf("[Specified options]\n");
-  while ((ret = getopt_long(argc, argv, "ab:c:h", OPTIONS, &optidx)) != -1) {
+  while ((ret = getopt_long(argc, argv, "ab:c:hv", OPTIONS, &optidx)) != -1) {
     switch (ret) {
       case 'a':  /* -a, --apple */
         printf("  -a, --apple\n");
@@ -66,6 +74,9 @@ parse_arguments(int argc, char *argv[])
         break;
       case 'h':  /* -h, --help */
         show_usage(argv[0]);
+        exit(EXIT_SUCCESS);
+      case 'v':  /* -v, --version */
+        showVersion();
         exit(EXIT_SUCCESS);
       case '?':  /* unknown option */
         show_usage(argv[0]);
@@ -108,5 +119,22 @@ show_usage(const char *progname)
       "  -b BANANA, --banana=BANANA\n"
       "    banana banana banana\n"
       "  -c [CAKE], --cake[=CAKE]\n"
-      "    cake cake cake\n");
+      "    cake cake cake\n"
+      "  -h, --help\n"
+      "    Show help of this program\n"
+      "  -v, --version\n"
+      "    Show version of this program\n");
+}
+
+
+/*!
+ * @brief Show version of this program
+ */
+static void
+showVersion(void)
+{
+  printf(
+      "Version: " VERSION "\n"
+      "Build date: " __DATE__ ", " __TIME__ "\n"
+      "Compiled by: " AUTHOR "\n");
 }
