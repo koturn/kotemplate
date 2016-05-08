@@ -13,10 +13,17 @@
 
 
 static void
-parseArguments(int argc, char *argv[]);
+parseArguments(int argc, char* argv[]);
 
 static void
-showUsage(const char *progname);
+showUsage(const char* progname);
+
+static void
+showVersion();
+
+
+static const char* VERSION = "0.1";
+static const char* AUTHOR = "<+AUTHOR+>";
 
 
 /*!
@@ -26,7 +33,7 @@ showUsage(const char *progname);
  * @return  Exit-status
  */
 int
-main(int argc, char *argv[])
+main(int argc, char* argv[])
 {
   parseArguments(argc, argv);
   <+CURSOR+>
@@ -40,27 +47,30 @@ main(int argc, char *argv[])
  * @param [in,out] argv  Command line arguments
  */
 static void
-parseArguments(int argc, char *argv[])
+parseArguments(int argc, char* argv[])
 {
   static const int N_REQUIRED_REMAININGS = 1;
 
   std::cout << "[Specified options]\n";
   int ret;
-  while ((ret = getopt(argc, argv, "ab:c:h")) != -1) {
+  while ((ret = getopt(argc, argv, "ab:c:hv")) != -1) {
     switch (ret) {
-      case 'a':  /* -a */
+      case 'a':  // -a
         std::cout << "  -a\n";
         break;
-      case 'b':  /* -b */
+      case 'b':  // -b
         std::cout << "  -b: " << optarg << "\n";
         break;
-      case 'c':  /* -c */
+      case 'c':  // -c
         std::cout << "  -c: " << optarg << "\n";
         break;
-      case 'h':  /* -h */
+      case 'h':  // -h
         showUsage(argv[0]);
         std::exit(EXIT_SUCCESS);
-      case '?':  /* unknown option */
+      case 'v':  // -v
+        showVersion();
+        std::exit(EXIT_SUCCESS);
+      case '?':  // unknown option
         showUsage(argv[0]);
         std::exit(EXIT_FAILURE);
     }
@@ -87,16 +97,33 @@ parseArguments(int argc, char *argv[])
  * @param [in] progname  Name of this program
  */
 static void
-showUsage(const char *progname)
+showUsage(const char* progname)
 {
   std::cout << "[Usage]\n"
-            << "  $ " << progname << " [options] FILE\n\n"
+               "  $ " << progname << " [options] FILE\n\n"
                "[Options]\n"
                "  -a\n"
                "    apple apple apple\n"
                "  -b BANANA\n"
                "    banana banana banana\n"
                "  -c [CAKE]\n"
-               "    cake cake cake"
+               "    cake cake cake\n"
+               "  -h\n"
+               "    Show help of this program\n"
+               "  -v\n"
+               "    Show version of this program"
+            << std::endl;
+}
+
+
+/*!
+ * @brief Show version of this program
+ */
+static void
+showVersion()
+{
+  std::cout << "Version: " << VERSION << "\n"
+               "Build date: " __DATE__ ", " __TIME__ "\n"
+               "Compiled by: " << AUTHOR
             << std::endl;
 }
