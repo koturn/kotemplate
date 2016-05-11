@@ -18,43 +18,57 @@
 
 ## Installation
 
-With [NeoBundle](https://github.com/Shougo/neobundle.vim).
+### With [dein.vim](https://github.com/Shougo/neobundle.vim).
 
-```VimL
+```vim
+call dein#add('<+AUTHOR+>/<+DIR+>', {
+      \ 'depends': 'apple/vim-apple',
+      \ 'on_cmd': [
+      \   'Apple',
+      \   'Banana',
+      \   'Cake',
+      \ ],
+      \ 'on_map': [
+      \   ['<Plug>(apple-'],
+      \   ['n', '<Plug>(banana-']
+      \ ],
+      \ 'on_func': 'xxxx'
+      \})
+```
+
+### With [NeoBundle](https://github.com/Shougo/neobundle.vim).
+
+```vim
 NeoBundle '<+AUTHOR+>/<+DIR+>'
 ```
 
 If you want to use ```:NeoBundleLazy```, write following code in your .vimrc.
 
-```VimL
-NeoBundleLazy '<+AUTHOR+>/<+DIR+>'
-if neobundle#tap('<+DIR+>')
-  call neobundle#config({
-        \ 'depends': 'apple/vim-apple',
-        \ 'autoload': {
-        \   'commands': [
-        \     'Apple', 'Banana', 'Cake',
-        \     {'name': 'AppleComplete', 'complete': 'file'},
-        \     {'name': 'BananaComplete', 'complete': 'file'},
-        \   ],
-        \   'mappings': ['<Plug>(apple-'], ['n', '<Plug>(banana-'],
-        \   'functions': ['Diamond', 'Electoric'],
-        \   'function_prefix': 'xxxx'
-        \ }
-        \})
-  call neobundle#untap()
-endif
+```vim
+NeoBundle '<+AUTHOR+>/<+DIR+>', {
+      \ 'depends': 'apple/vim-apple',
+      \ 'on_cmd': [
+      \   'Apple',
+      \   'Banana',
+      \   'Cake',
+      \ ],
+      \ 'on_map': [
+      \   ['<Plug>(apple-'],
+      \   ['n', '<Plug>(banana-']
+      \ ],
+      \ 'on_func': 'xxxx'
+      \}
 ```
 
-With [Vundle](https://github.com/VundleVim/Vundle.vim).
+### With [Vundle](https://github.com/VundleVim/Vundle.vim).
 
-```VimL
+```vim
 Plugin '<+AUTHOR+>/<+DIR+>'
 ```
 
-With [vim-plug](https://github.com/junegunn/vim-plug).
+### With [vim-plug](https://github.com/junegunn/vim-plug).
 
-```VimL
+```vim
 Plug '<+AUTHOR+>/<+DIR+>'
 ```
 
