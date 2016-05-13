@@ -18,7 +18,7 @@
 
 ## Installation
 
-### With [dein.vim](https://github.com/Shougo/neobundle.vim).
+### With [dein.vim](https://github.com/Shougo/neobundle.vim)
 
 ```vim
 call dein#add('<+AUTHOR+>/<+DIR+>', {
@@ -36,7 +36,7 @@ call dein#add('<+AUTHOR+>/<+DIR+>', {
       \})
 ```
 
-### With [NeoBundle](https://github.com/Shougo/neobundle.vim).
+### With [NeoBundle](https://github.com/Shougo/neobundle.vim)
 
 ```vim
 NeoBundle '<+AUTHOR+>/<+DIR+>'
@@ -60,13 +60,13 @@ NeoBundle '<+AUTHOR+>/<+DIR+>', {
       \}
 ```
 
-### With [Vundle](https://github.com/VundleVim/Vundle.vim).
+### With [Vundle](https://github.com/VundleVim/Vundle.vim)
 
 ```vim
 Plugin '<+AUTHOR+>/<+DIR+>'
 ```
 
-### With [vim-plug](https://github.com/junegunn/vim-plug).
+### With [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
 Plug '<+AUTHOR+>/<+DIR+>'
