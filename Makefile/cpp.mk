@@ -76,10 +76,9 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
-# $(eval $(shell $(CXX) -MM $(SRCS)))
+$(foreach SRC,$(SRCS),$(eval $(shell $(CXX) -MM $(SRC))))
 
-
--include $(DEPENDS)
+# -include $(DEPENDS)
 
 depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
