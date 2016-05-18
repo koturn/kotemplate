@@ -32,7 +32,7 @@ WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
                   -Wfloat-equal -Wpointer-arith -Wswitch-enum \
                   -Wwrite-strings -pedantic
 
-CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),)
+CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),-std=gnu11)
 MKDIR      := mkdir -p
 CP         := cp
 RM         := rm -f
@@ -66,9 +66,8 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
-$(foreach SRC,$(SRCS),$(eval $(shell $(CC) -MM $(SRC))))
-
 # -include $(DEPENDS)
+$(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CC) -MM $(SRC)))))
 
 depends:
 	$(CC) -MM $(SRCS) > $(DEPENDS)

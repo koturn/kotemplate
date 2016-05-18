@@ -40,8 +40,8 @@ WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
 WARNING_CXXFLAGS := $(WARNING_CFLAGS) -Weffc++ -Woverloaded-virtual
 
 
-CC           := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),)
-CXX          := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),)
+CC           := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),-std=gnu11)
+CXX          := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),-std=gnu++14)
 MKDIR        := mkdir -p
 CP           := cp
 RM           := rm -f
@@ -76,9 +76,8 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
-$(foreach SRC,$(SRCS),$(eval $(shell $(CXX) -MM $(SRC))))
-
 # -include $(DEPENDS)
+$(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CXX) -MM $(SRC)))))
 
 depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
