@@ -8,14 +8,14 @@ endif
 else
 ifeq ($(OPT),true)
     OPT_CFLAGS  := -flto -Ofast -march=native -DNDEBUG
-    OPT_LDFLAGS := -flto -Ofast -s
+    OPT_LDFLAGS := -flto -s
 else
 ifeq ($(LTO),true)
     OPT_CFLAGS  := -flto -DNDEBUG
     OPT_LDFLAGS := -flto
 else
     OPT_CFLAGS  := -O3 -DNDEBUG
-    OPT_LDFLAGS := -O3 -s
+    OPT_LDFLAGS := -s
 endif
 endif
 endif
@@ -44,8 +44,8 @@ LDFLAGS    := -pipe $(OPT_LDFLAGS)
 CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
 TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .c, $(basename $(TARGET)))
-OBJS       := $(SRCS:.c=.o)
+OBJS       := $(addsuffix .o, $(basename $(TARGET)))
+SRCS       := $(SRCS:.o=.c)
 INSTALLDIR := $(if $(PREFIX), $(PREFIX),/usr/local)/bin
 DEPENDS    := depends.mk
 

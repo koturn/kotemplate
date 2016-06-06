@@ -10,7 +10,7 @@ else
 ifeq ($(OPT),true)
     OPT_CFLAGS   := -flto -Ofast -march=native -DNDEBUG
     OPT_CXXFLAGS := $(OPT_CFLAGS)
-    OPT_LDFLAGS  := -flto -Ofast -s
+    OPT_LDFLAGS  := -flto -s
 else
 ifeq ($(LTO),true)
     OPT_CFLAGS   := -flto -DNDEBUG
@@ -19,7 +19,7 @@ ifeq ($(LTO),true)
 else
     OPT_CFLAGS   := -O3 -DNDEBUG
     OPT_CXXFLAGS := $(OPT_CFLAGS)
-    OPT_LDFLAGS  := -O3 -s
+    OPT_LDFLAGS  := -s
 endif
 endif
 endif
@@ -54,8 +54,8 @@ LDFLAGS      := -pipe $(OPT_LDFLAGS)
 LDLIBS       := $(OPT_LDLIBS)
 CTAGSFLAGS   := -R --languages=c,c++
 TARGET       := <+CURSOR+>
-SRCS         := $(addsuffix .cpp, $(basename $(TARGET)))
-OBJS         := $(SRCS:.cpp=.o)
+OBJS         := $(addsuffix .o, $(basename $(TARGET)))
+SRCS         := $(SRCS:.o=.cpp)
 INSTALLDIR   := $(if $(PREFIX), $(PREFIX),/usr/local)/bin
 DEPENDS      := depends.mk
 
