@@ -37,7 +37,7 @@ ifneq ($(OS),Windows_NT)
 	SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
 endif
 
-CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),)
+CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)), -std=gnu11)
 AR         := ar
 MKDIR      := mkdir -p
 CP         := cp
@@ -47,21 +47,23 @@ CTAGS      := ctags
 # INCS     := -I./include
 CFLAGS     := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
 LDFLAGS    := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
-ARFLAGS    := rcs
+ARFLAGS    := crsv
 CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
-TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .c, $(basename $(TARGET)))
-OBJS       := $(SRCS:.c=.o)
-INSTALLDIR := $(if $(PREFIX), $(PREFIX),/usr/local)/lib
+BASENAME   := <+CURSOR+>
+OBJS       := $(addsuffix .o, $(basename $(BASENAME)))
+SRCS       := $(SRCS:.o=.cpp)
+PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-	SHARED_LIBS := $(addsuffix .dll, $(TARGET))
+	SHARED_LIBS := $(addsuffix .dll, $(BASENAME))
 else
-	SHARED_LIBS := $(addprefix lib, $(addsuffix .so, $(TARGET)))
+	SHARED_LIBS := $(addprefix lib, $(addsuffix .so, $(BASENAME)))
 endif
-STATIC_LIBS := $(addprefix lib, $(addsuffix .a, $(TARGET)))
+STATIC_LIBS := $(addprefix lib, $(addsuffix .a, $(BASENAME)))
+INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
+INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
 
 %.dll:
@@ -73,7 +75,7 @@ STATIC_LIBS := $(addprefix lib, $(addsuffix .a, $(TARGET)))
 
 
 .PHONY: all shared static depends syntax ctags install uninstall clean cleanobj
-all: shared
+all: shared static
 
 shared: $(SHARED_LIBS)
 $(SHARED_LIBS): $(OBJS)
@@ -82,9 +84,8 @@ static: $(STATIC_LIBS)
 $(STATIC_LIBS): $(OBJS)
 
 # $(OBJS): $(SRCS)
-
-
--include $(DEPENDS)
+# -include $(DEPENDS)
+$(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CXX) -MM $(SRC)))))
 
 depends:
 	$(CC) -MM $(SRCS) > $(DEPENDS)
@@ -95,16 +96,21 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
-install: $(INSTALLDIR)/$(TARGET)
-$(INSTALLDIR)/$(TARGET): $(TARGET)
+install: $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
+
+$(INSTALLED_SHARED_LIB): $(SHARED_LIB)
+	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
+	$(CP) $< $@
+
+$(INSTALLED_STATIC_LIB): $(STATIC_LIB)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
 
 uninstall:
-	$(RM) $(INSTALLDIR)/$(TARGET)
+	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 clean:
-	$(RM) $(TARGET) $(OBJS) $(SHARED_LIBS) $(STATIC_LIBS)
+	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
 
 cleanobj:
-	$(RM) $(OBJS) $(SHARED_LIBS) $(STATIC_LIBS)
+	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)

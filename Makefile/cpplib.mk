@@ -10,7 +10,7 @@ else
 ifeq ($(OPT),true)
     OPT_CFLAGS   := -flto -Ofast -march=native -DNDEBUG
     OPT_CXXFLAGS := $(OPT_CFLAGS)
-    OPT_LDFLAGS  := -flto -Ofast -s
+    OPT_LDFLAGS  := -flto -s
 else
 ifeq ($(LTO),true)
     OPT_CFLAGS   := -flto -DNDEBUG
@@ -19,7 +19,7 @@ ifeq ($(LTO),true)
 else
     OPT_CFLAGS   := -O3 -DNDEBUG
     OPT_CXXFLAGS := $(OPT_CFLAGS)
-    OPT_LDFLAGS  := -O3 -s
+    OPT_LDFLAGS  := -s
 endif
 endif
 endif
@@ -57,19 +57,22 @@ CFLAGS     := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MA
 CXXFLAGS   := -pipe $(SHARED_FLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
 LDFLAGS    := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
 LDLIBS     := $(OPT_LDLIBS)
+ARFLAGS    := crsv
 CTAGSFLAGS := -R --languages=c,c++
 TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .cpp, $(basename $(TARGET)))
-OBJS       := $(SRCS:.cpp=.o)
-INSTALLDIR := $(if $(PREFIX), $(PREFIX),/usr/local)/lib
+OBJS       := $(addsuffix .o, $(basename $(TARGET)))
+SRCS       := $(SRCS:.o=.cpp)
+PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-	SHARED_LIBS := $(addsuffix .dll, $(TARGET))
+	SHARED_LIB := $(addsuffix .dll, $(TARGET))
 else
-	SHARED_LIBS := $(addprefix lib, $(addsuffix .so, $(TARGET)))
+	SHARED_LIB := $(addprefix lib, $(addsuffix .so, $(TARGET)))
 endif
-STATIC_LIBS := $(addprefix lib, $(addsuffix .a, $(TARGET)))
+STATIC_LIB := $(addprefix lib, $(addsuffix .a, $(TARGET)))
+INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
+INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
 
 %.dll:
@@ -81,18 +84,17 @@ STATIC_LIBS := $(addprefix lib, $(addsuffix .a, $(TARGET)))
 
 
 .PHONY: all shared static depends syntax ctags install uninstall clean cleanobj
-all: shared
+all: shared static
 
-shared: $(SHARED_LIBS)
-$(SHARED_LIBS): $(OBJS)
+shared: $(SHARED_LIB)
+$(SHARED_LIB): $(OBJS)
 
-static: $(STATIC_LIBS)
-$(STATIC_LIBS): $(OBJS)
+static: $(STATIC_LIB)
+$(STATIC_LIB): $(OBJS)
 
 # $(OBJS): $(SRCS)
-
-
--include $(DEPENDS)
+# -include $(DEPENDS)
+$(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CXX) -MM $(SRC)))))
 
 depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
@@ -103,16 +105,21 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
-install: $(INSTALLDIR)/$(TARGET)
-$(INSTALLDIR)/$(TARGET): $(TARGET)
+install: $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
+
+$(INSTALLED_SHARED_LIB): $(SHARED_LIB)
+	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
+	$(CP) $< $@
+
+$(INSTALLED_STATIC_LIB): $(STATIC_LIB)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
 
 uninstall:
-	$(RM) $(INSTALLDIR)/$(TARGET)
+	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 clean:
-	$(RM) $(TARGET) $(OBJS) $(SHARED_LIBS) $(STATIC_LIBS)
+	$(RM) $(TARGET) $(OBJS) $(SHARED_LIB) $(STATIC_LIB)
 
 cleanobj:
-	$(RM) $(OBJS) $(SHARED_LIBS) $(STATIC_LIBS)
+	$(RM) $(OBJS) $(SHARED_LIB) $(STATIC_LIB)
