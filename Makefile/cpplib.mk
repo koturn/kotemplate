@@ -44,8 +44,8 @@ ifneq ($(OS),Windows_NT)
 	SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
 endif
 
-CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),)
-CXX        := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),)
+CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)), -std=gnu11)
+CXX        := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)), -std=gnu++14)
 AR         := ar
 MKDIR      := mkdir -p
 CP         := cp
@@ -59,18 +59,18 @@ LDFLAGS    := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
 LDLIBS     := $(OPT_LDLIBS)
 ARFLAGS    := crsv
 CTAGSFLAGS := -R --languages=c,c++
-TARGET     := <+CURSOR+>
-OBJS       := $(addsuffix .o, $(basename $(TARGET)))
+BASENAME   := <+CURSOR+>
+OBJS       := $(addsuffix .o, $(basename $(BASENAME)))
 SRCS       := $(SRCS:.o=.cpp)
 PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-	SHARED_LIB := $(addsuffix .dll, $(TARGET))
+	SHARED_LIB := $(addsuffix .dll, $(BASENAME))
 else
-	SHARED_LIB := $(addprefix lib, $(addsuffix .so, $(TARGET)))
+	SHARED_LIB := $(addprefix lib, $(addsuffix .so, $(BASENAME)))
 endif
-STATIC_LIB := $(addprefix lib, $(addsuffix .a, $(TARGET)))
+STATIC_LIB := $(addprefix lib, $(addsuffix .a, $(BASENAME)))
 INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
 INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
@@ -119,7 +119,7 @@ uninstall:
 	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 clean:
-	$(RM) $(TARGET) $(OBJS) $(SHARED_LIB) $(STATIC_LIB)
+	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS)
 
 cleanobj:
-	$(RM) $(OBJS) $(SHARED_LIB) $(STATIC_LIB)
+	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS)
