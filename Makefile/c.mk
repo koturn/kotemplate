@@ -45,7 +45,7 @@ CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
 TARGET     := <+CURSOR+>
 OBJS       := $(addsuffix .o, $(basename $(TARGET)))
-SRCS       := $(SRCS:.o=.c)
+SRCS       := $(OBJS:.o=.c)
 INSTALLDIR := $(if $(PREFIX), $(PREFIX),/usr/local)/bin
 DEPENDS    := depends.mk
 

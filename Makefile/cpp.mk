@@ -55,7 +55,7 @@ LDLIBS       := $(OPT_LDLIBS)
 CTAGSFLAGS   := -R --languages=c,c++
 TARGET       := <+CURSOR+>
 OBJS         := $(addsuffix .o, $(basename $(TARGET)))
-SRCS         := $(SRCS:.o=.cpp)
+SRCS         := $(OBJS:.o=.cpp)
 INSTALLDIR   := $(if $(PREFIX), $(PREFIX),/usr/local)/bin
 DEPENDS      := depends.mk
 
