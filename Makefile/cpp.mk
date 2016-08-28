@@ -33,37 +33,49 @@ else
     OPT_CXXFLAGS := $(OPT_CXXFLAGS) -Wno-unknown-pragmas
 endif
 
-WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
-                  -Wcast-align -Wcast-qual -Wconversion \
-                  -Wfloat-equal -Wpointer-arith -Wswitch-enum \
-                  -Wwrite-strings -pedantic
-WARNING_CXXFLAGS := $(WARNING_CFLAGS) -Weffc++ -Woverloaded-virtual
+WARNING_CFLAGS := \
+    -Wall \
+    -Wextra \
+    -Wcast-align \
+    -Wcast-qual \
+    -Wconversion \
+    -Wfloat-equal \
+    -Wformat=2 \
+    -Wpointer-arith \
+    -Wstrict-aliasing=2 \
+    -Wswitch-enum \
+    -Wwrite-strings \
+    -pedantic
 
+WARNING_CXXFLAGS := \
+    $(WARNING_CFLAGS) \
+    -Weffc++ \
+    -Woverloaded-virtual
 
-CC           := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),-std=gnu11)
-CXX          := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),-std=gnu++14)
-MKDIR        := mkdir -p
-CP           := cp
-RM           := rm -f
-CTAGS        := ctags
-# MACROS       := -DMACRO
-# INCS         := -I./include
-CFLAGS       := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
-CXXFLAGS     := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
-LDFLAGS      := -pipe $(OPT_LDFLAGS)
-LDLIBS       := $(OPT_LDLIBS)
-CTAGSFLAGS   := -R --languages=c,c++
-TARGET       := <+CURSOR+>
-OBJS         := $(addsuffix .o, $(basename $(TARGET)))
-SRCS         := $(OBJS:.o=.cpp)
-INSTALLDIR   := $(if $(PREFIX), $(PREFIX),/usr/local)/bin
-DEPENDS      := depends.mk
+CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),-std=gnu11)
+CXX        := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),-std=gnu++14)
+MKDIR      := mkdir -p
+CP         := cp
+RM         := rm -f
+CTAGS      := ctags
+# MACROS     := -DMACRO
+# INCS       := -I./include
+CFLAGS     := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
+CXXFLAGS   := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
+LDFLAGS    := -pipe $(OPT_LDFLAGS)
+LDLIBS     := $(OPT_LDLIBS)
+CTAGSFLAGS := -R --languages=c,c++
+TARGET     := <+CURSOR+>
+OBJS       := $(addsuffix .o, $(basename $(TARGET)))
+SRCS       := $(OBJS:.o=.cpp)
+DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
     TARGET := $(addsuffix .exe, $(TARGET))
 else
     TARGET := $(addsuffix .out, $(TARGET))
 endif
+INSTALLED_TARGET := $(if $(PREFIX), $(PREFIX),/usr/local)/bin/$(TARGET)
 
 %.exe:
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
@@ -71,13 +83,16 @@ endif
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
 
 
-.PHONY: all depends syntax ctags install uninstall clean cleanobj
+.PHONY: all test depends syntax ctags install uninstall clean cleanobj
 all: $(TARGET)
 $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
 # -include $(DEPENDS)
 $(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CXX) -MM $(SRC)))))
+
+test: $(TARGET)
+	@./$<
 
 depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
@@ -88,13 +103,13 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
-install: $(INSTALLDIR)/$(TARGET)
-$(INSTALLDIR)/$(TARGET): $(TARGET)
+install: $(INSTALLED_TARGET)
+$(INSTALLED_TARGET): $(TARGET)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
 
 uninstall:
-	$(RM) $(INSTALLDIR)/$(TARGET)
+	$(RM) $(INSTALLED_TARGET)
 
 clean:
 	$(RM) $(TARGET) $(OBJS)

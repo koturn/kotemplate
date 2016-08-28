@@ -27,10 +27,19 @@ else
     OPT_CFLAGS  := $(OPT_CFLAGS) -Wno-unknown-pragmas
 endif
 
-WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
-                  -Wcast-align -Wcast-qual -Wconversion \
-                  -Wfloat-equal -Wpointer-arith -Wswitch-enum \
-                  -Wwrite-strings -pedantic
+WARNING_CFLAGS := \
+    -Wall \
+    -Wextra \
+    -Wcast-align \
+    -Wcast-qual \
+    -Wconversion \
+    -Wfloat-equal \
+    -Wformat=2 \
+    -Wpointer-arith \
+    -Wstrict-aliasing=2 \
+    -Wswitch-enum \
+    -Wwrite-strings \
+    -pedantic
 
 CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),-std=gnu11)
 MKDIR      := mkdir -p
@@ -46,7 +55,6 @@ LDLIBS     := $(OPT_LDLIBS)
 TARGET     := <+CURSOR+>
 OBJS       := $(addsuffix .o, $(basename $(TARGET)))
 SRCS       := $(OBJS:.o=.c)
-INSTALLDIR := $(if $(PREFIX), $(PREFIX),/usr/local)/bin
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
@@ -54,6 +62,7 @@ ifeq ($(OS),Windows_NT)
 else
     TARGET := $(addsuffix .out, $(TARGET))
 endif
+INSTALLED_TARGET := $(if $(PREFIX), $(PREFIX),/usr/local)/bin/$(TARGET)
 
 %.exe:
 	$(CC) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
@@ -61,13 +70,16 @@ endif
 	$(CC) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
 
 
-.PHONY: all depends syntax ctags install uninstall clean cleanobj
+.PHONY: all test depends syntax ctags install uninstall clean cleanobj
 all: $(TARGET)
 $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
 # -include $(DEPENDS)
 $(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CC) -MM $(SRC)))))
+
+test: $(TARGET)
+	@./$<
 
 depends:
 	$(CC) -MM $(SRCS) > $(DEPENDS)
@@ -78,13 +90,13 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
-install: $(INSTALLDIR)/$(TARGET)
-$(INSTALLDIR)/$(TARGET): $(TARGET)
+install: $(INSTALLED_TARGET)
+$(INSTALLED_TARGET): $(TARGET)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
 
 uninstall:
-	$(RM) $(INSTALLDIR)/$(TARGET)
+	$(RM) $(INSTALLED_TARGET)
 
 clean:
 	$(RM) $(TARGET) $(OBJS)
