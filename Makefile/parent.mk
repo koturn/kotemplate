@@ -2,18 +2,16 @@ MAKE     ?= make
 DIR_LIST := apple/ banana/ cake/
 <+CURSOR+>
 
-.PHONY: all clean cleanobj
-all:
-	@for dir in $(DIR_LIST); do \
-		$(MAKE) -C $$dir; \
-	done
 
-clean:
+define default-rule
+$1:
 	@for dir in $(DIR_LIST); do \
-		$(MAKE) -C $$dir $@; \
+		$(MAKE) -C $$$$dir $$@; \
 	done
+endef
 
-cleanobj:
-	@for dir in $(DIR_LIST); do \
-		$(MAKE) -C $$dir $@; \
-	done
+
+PHONY_TARGETS := all clean cleanobj
+.PHONY: $(PHONY_TARGETS)
+
+$(foreach TARGET, $(SIMPLE_TARGETS), $(eval $(call default-rule, $(TARGET))))
