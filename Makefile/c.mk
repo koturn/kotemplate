@@ -46,8 +46,9 @@ MKDIR      := mkdir -p
 CP         := cp
 RM         := rm -f
 CTAGS      := ctags
-# MACROS   := -DMACRO
-# INCS     := -I./include
+# MACROS   := MACRO
+# INCDIRS  := ./include
+CPPFLAGS   := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
 CFLAGS     := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
 LDFLAGS    := -pipe $(OPT_LDFLAGS)
 CTAGSFLAGS := -R --languages=c

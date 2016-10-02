@@ -58,10 +58,11 @@ MKDIR      := mkdir -p
 CP         := cp
 RM         := rm -f
 CTAGS      := ctags
-# MACROS     := -DMACRO
-# INCS       := -I./include
-CFLAGS     := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
-CXXFLAGS   := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS) $(INCS) $(MACROS)
+# MACROS   := MACRO
+# INCDIRS  := ./include
+CPPFLAGS   := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
+CFLAGS     := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS)
+CXXFLAGS   := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
 LDFLAGS    := -pipe $(OPT_LDFLAGS)
 LDLIBS     := $(OPT_LDLIBS)
 CTAGSFLAGS := -R --languages=c,c++
