@@ -67,8 +67,8 @@ LDFLAGS    := -pipe $(OPT_LDFLAGS)
 LDLIBS     := $(OPT_LDLIBS)
 CTAGSFLAGS := -R --languages=c,c++
 TARGET     := <+CURSOR+>
-OBJS       := $(addsuffix .o, $(basename $(TARGET)))
-SRCS       := $(OBJS:.o=.cpp)
+SRCS       := $(addsuffix .cpp, $(basename $(TARGET)))
+OBJS       := $(SRCS:.cpp=.o) $(SRCS:.cxx=.o) $(SRCS:.cc=.o) $(SRCS:.c=.o)
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)

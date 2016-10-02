@@ -54,8 +54,8 @@ LDFLAGS    := -pipe $(OPT_LDFLAGS)
 CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
 TARGET     := <+CURSOR+>
-OBJS       := $(addsuffix .o, $(basename $(TARGET)))
-SRCS       := $(OBJS:.o=.c)
+SRCS       := $(addsuffix .c, $(basename $(TARGET)))
+OBJS       := $(SRCS:.c=.o)
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
