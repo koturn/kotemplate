@@ -53,7 +53,7 @@ CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
 BASENAME   := <+CURSOR+>
 OBJS       := $(addsuffix .o, $(basename $(BASENAME)))
-SRCS       := $(OBJS:.o=.cpp)
+SRCS       := $(OBJS:.o=.c)
 PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
