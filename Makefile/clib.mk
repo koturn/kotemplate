@@ -52,8 +52,8 @@ ARFLAGS    := crsv
 CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
 BASENAME   := <+CURSOR+>
-SRCS       := $(addsuffix .c, $(basename $(TARGET)))
-OBJS       := $(SRCS:.c=.o)
+OBJS       := $(addsuffix .o, $(basename $(BASENAME)))
+SRCS       := $(OBJS:.o=.c)
 PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
