@@ -108,7 +108,7 @@ packadd <+DIR+>
 ### With manual
 
 If you don't want to use plugin manager, put files and directories on
-```~/.vim/```, or ```%HOME%/vimfiles/``` on Windows.
+`~/.vim/`, or `%HOME%/vimfiles/` on Windows.
 
 
 ## Dependent plugins
