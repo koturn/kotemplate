@@ -77,11 +77,11 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
 
 %.dll:
-	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) -o $@
+	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o,$^) $(LDLIBS) -o $@
 %.so:
-	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) -o $@
+	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o,$^) $(LDLIBS) -o $@
 %.a:
-	$(AR) $(ARFLAGS) $@ $(filter %.o, $^)
+	$(AR) $(ARFLAGS) $@ $(filter %.o,$^) $(LDLIBS)
 
 
 .PHONY: all shared static depends syntax ctags install uninstall clean cleanobj
