@@ -27,10 +27,19 @@ else
     OPT_CFLAGS  := $(OPT_CFLAGS) -Wno-unknown-pragmas
 endif
 
-WARNING_CFLAGS := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2 \
-                  -Wcast-align -Wcast-qual -Wconversion \
-                  -Wfloat-equal -Wpointer-arith -Wswitch-enum \
-                  -Wwrite-strings -pedantic
+WARNING_CFLAGS := \
+    -Wall \
+    -Wextra \
+    -Wcast-align \
+    -Wcast-qual \
+    -Wconversion \
+    -Wfloat-equal \
+    -Wformat=2 \
+    -Wpointer-arith \
+    -Wstrict-aliasing=2 \
+    -Wswitch-enum \
+    -Wwrite-strings \
+    -pedantic
 
 SHARED_FLAGS := -shared
 ifneq ($(OS),Windows_NT)
@@ -86,7 +95,7 @@ $(STATIC_LIBS): $(OBJS)
 
 # $(OBJS): $(SRCS)
 # -include $(DEPENDS)
-$(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CXX) -MM $(SRC)))))
+$(foreach SRC,$(SRCS),$(eval $(filter-out \,$(shell $(CC) -MM $(SRC)))))
 
 depends:
 	$(CC) -MM $(SRCS) > $(DEPENDS)

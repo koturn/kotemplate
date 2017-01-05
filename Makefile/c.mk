@@ -77,7 +77,7 @@ $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
 # -include $(DEPENDS)
-$(foreach SRC,$(SRCS),$(eval $(subst \,,$(shell $(CC) -MM $(SRC)))))
+$(foreach SRC,$(SRCS),$(eval $(filter-out \,$(shell $(CC) -MM $(SRC)))))
 
 test: $(TARGET)
 	@./$<
