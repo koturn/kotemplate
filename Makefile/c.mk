@@ -41,7 +41,7 @@ WARNING_CFLAGS := \
     -Wwrite-strings \
     -pedantic
 
-CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),-std=gnu11)
+CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
 MKDIR      := mkdir -p
 CP         := cp
 RM         := rm -f
@@ -54,21 +54,21 @@ LDFLAGS    := -pipe $(OPT_LDFLAGS)
 CTAGSFLAGS := -R --languages=c
 LDLIBS     := $(OPT_LDLIBS)
 TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .c, $(basename $(TARGET)))
+SRCS       := $(addsuffix .c,$(basename $(TARGET)))
 OBJS       := $(SRCS:.c=.o)
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-    TARGET := $(addsuffix .exe, $(TARGET))
+    TARGET := $(addsuffix .exe,$(TARGET))
 else
-    TARGET := $(addsuffix .out, $(TARGET))
+    TARGET := $(addsuffix .out,$(TARGET))
 endif
-INSTALLED_TARGET := $(if $(PREFIX), $(PREFIX),/usr/local)/bin/$(TARGET)
+INSTALLED_TARGET := $(if $(PREFIX),$(PREFIX),/usr/local)/bin/$(TARGET)
 
 %.exe:
-	$(CC) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(filter %.c %.o,$^) $(LDLIBS) -o $@
 %.out:
-	$(CC) $(LDFLAGS) $(filter %.c %.o, $^) $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(filter %.c %.o,$^) $(LDLIBS) -o $@
 
 
 .PHONY: all test depends syntax ctags install uninstall clean cleanobj

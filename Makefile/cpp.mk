@@ -52,8 +52,8 @@ WARNING_CXXFLAGS := \
     -Weffc++ \
     -Woverloaded-virtual
 
-CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)),-std=gnu11)
-CXX        := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)),-std=gnu++14)
+CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
+CXX        := g++ $(if $(STDCXX),$(addprefix -std=,$(STDCXX)),-std=gnu++14)
 MKDIR      := mkdir -p
 CP         := cp
 RM         := rm -f
@@ -67,21 +67,21 @@ LDFLAGS    := -pipe $(OPT_LDFLAGS)
 LDLIBS     := $(OPT_LDLIBS)
 CTAGSFLAGS := -R --languages=c,c++
 TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .cpp, $(basename $(TARGET)))
+SRCS       := $(addsuffix .cpp,$(basename $(TARGET)))
 OBJS       := $(SRCS:.cpp=.o) $(SRCS:.cxx=.o) $(SRCS:.cc=.o) $(SRCS:.c=.o)
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-    TARGET := $(addsuffix .exe, $(TARGET))
+    TARGET := $(addsuffix .exe,$(TARGET))
 else
-    TARGET := $(addsuffix .out, $(TARGET))
+    TARGET := $(addsuffix .out,$(TARGET))
 endif
-INSTALLED_TARGET := $(if $(PREFIX), $(PREFIX),/usr/local)/bin/$(TARGET)
+INSTALLED_TARGET := $(if $(PREFIX),$(PREFIX),/usr/local)/bin/$(TARGET)
 
 %.exe:
-	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
+	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o,$^) $(LDLIBS) -o $@
 %.out:
-	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o, $^) $(LDLIBS) -o $@
+	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o,$^) $(LDLIBS) -o $@
 
 
 .PHONY: all test depends syntax ctags install uninstall clean cleanobj

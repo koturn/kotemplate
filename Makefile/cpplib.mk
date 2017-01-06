@@ -57,8 +57,8 @@ ifneq ($(OS),Windows_NT)
 	SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
 endif
 
-CC         := gcc $(if $(STDC), $(addprefix -std=, $(STDC)), -std=gnu11)
-CXX        := g++ $(if $(STDCXX), $(addprefix -std=, $(STDCXX)), -std=gnu++14)
+CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
+CXX        := g++ $(if $(STDCXX),$(addprefix -std=,$(STDCXX)),-std=gnu++14)
 AR         := ar
 MKDIR      := mkdir -p
 CP         := cp
@@ -74,17 +74,17 @@ LDLIBS     := $(OPT_LDLIBS)
 ARFLAGS    := crsv
 CTAGSFLAGS := -R --languages=c,c++
 BASENAME   := <+CURSOR+>
-SRCS       := $(addsuffix .cpp, $(basename $(TARGET)))
+SRCS       := $(addsuffix .cpp,$(basename $(BASENAME)))
 OBJS       := $(SRCS:.cpp=.o) $(SRCS:.cxx=.o) $(SRCS:.cc=.o) $(SRCS:.c=.o)
 PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-	SHARED_LIB := $(addsuffix .dll, $(BASENAME))
+	SHARED_LIB := $(addsuffix .dll,$(BASENAME))
 else
-	SHARED_LIB := $(addprefix lib, $(addsuffix .so, $(BASENAME)))
+	SHARED_LIB := $(addprefix lib,$(addsuffix .so,$(BASENAME)))
 endif
-STATIC_LIB := $(addprefix lib, $(addsuffix .a, $(BASENAME)))
+STATIC_LIB := $(addprefix lib,$(addsuffix .a,$(BASENAME)))
 INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
 INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
