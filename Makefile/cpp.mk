@@ -68,7 +68,7 @@ LDLIBS     := $(OPT_LDLIBS)
 CTAGSFLAGS := -R --languages=c,c++
 TARGET     := <+CURSOR+>
 SRCS       := $(addsuffix .cpp,$(basename $(TARGET)))
-OBJS       := $(SRCS:.cpp=.o) $(SRCS:.cxx=.o) $(SRCS:.cc=.o) $(SRCS:.c=.o)
+OBJS       := $(foreach PAT,%.cpp %.cxx %.cc,$(patsubst $(PAT),%.o,$(filter $(PAT),$(SRCS))))
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)

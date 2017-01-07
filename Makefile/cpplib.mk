@@ -75,7 +75,7 @@ ARFLAGS    := crsv
 CTAGSFLAGS := -R --languages=c,c++
 BASENAME   := <+CURSOR+>
 SRCS       := $(addsuffix .cpp,$(basename $(BASENAME)))
-OBJS       := $(SRCS:.cpp=.o) $(SRCS:.cxx=.o) $(SRCS:.cc=.o) $(SRCS:.c=.o)
+OBJS       := $(foreach PAT,%.cpp %.cxx %.cc,$(patsubst $(PAT),%.o,$(filter $(PAT),$(SRCS))))
 PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
