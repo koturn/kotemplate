@@ -1,0 +1,8 @@
+*.exe
+*.o
+*.obj
+*.out
+*.pdb
+*.pro.user
+tags
+build/
