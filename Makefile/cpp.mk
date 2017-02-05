@@ -67,7 +67,7 @@ WARNING_COMMON_FLAGS := \
     -pedantic
 
 WARNING_CFLAGS := \
-	$(WARNING_COMMON_FLAGS) \
+    $(WARNING_COMMON_FLAGS) \
     -Wc++-compat \
     -Wbad-function-cast \
     -Wjump-misses-init \

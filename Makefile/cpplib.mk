@@ -67,7 +67,7 @@ WARNING_COMMON_FLAGS := \
     -pedantic
 
 WARNING_CFLAGS := \
-	$(WARNING_COMMON_FLAGS) \
+    $(WARNING_COMMON_FLAGS) \
     -Wc++-compat \
     -Wbad-function-cast \
     -Wjump-misses-init \
@@ -90,7 +90,7 @@ WARNING_CXXFLAGS := \
 
 SHARED_FLAGS := -shared
 ifneq ($(OS),Windows_NT)
-	SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
+    SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
 endif
 
 CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
@@ -116,9 +116,9 @@ PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-	SHARED_LIB := $(addsuffix .dll,$(BASENAME))
+    SHARED_LIB := $(addsuffix .dll,$(BASENAME))
 else
-	SHARED_LIB := $(addprefix lib,$(addsuffix .so,$(BASENAME)))
+    SHARED_LIB := $(addprefix lib,$(addsuffix .so,$(BASENAME)))
 endif
 STATIC_LIB := $(addprefix lib,$(addsuffix .a,$(BASENAME)))
 INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))

@@ -69,7 +69,7 @@ WARNING_COMMON_FLAGS := \
 
 SHARED_FLAGS := -shared
 ifneq ($(OS),Windows_NT)
-	SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
+    SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
 endif
 
 CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
@@ -93,9 +93,9 @@ PREFIX     := /usr/local
 DEPENDS    := depends.mk
 
 ifeq ($(OS),Windows_NT)
-	SHARED_LIBS := $(addsuffix .dll,$(BASENAME))
+    SHARED_LIBS := $(addsuffix .dll,$(BASENAME))
 else
-	SHARED_LIBS := $(addprefix lib,$(addsuffix .so,$(BASENAME)))
+    SHARED_LIBS := $(addprefix lib,$(addsuffix .so,$(BASENAME)))
 endif
 STATIC_LIBS := $(addprefix lib,$(addsuffix .a,$(BASENAME)))
 INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
