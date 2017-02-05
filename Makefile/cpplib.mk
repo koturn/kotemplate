@@ -33,24 +33,60 @@ else
     OPT_CXXFLAGS := $(OPT_CXXFLAGS) -Wno-unknown-pragmas
 endif
 
-WARNING_CFLAGS := \
+WARNING_COMMON_FLAGS := \
     -Wall \
     -Wextra \
+    -Wabi \
     -Wcast-align \
     -Wcast-qual \
     -Wconversion \
+    -Wdisabled-optimization \
+    -Wdouble-promotion \
     -Wfloat-equal \
     -Wformat=2 \
+    -Winit-self \
+    -Winline \
+    -Wlogical-op \
+    -Wmissing-declarations \
+    -Wno-return-local-addr \
     -Wpointer-arith \
+    -Wredundant-decls \
     -Wstrict-aliasing=2 \
+    -Wsuggest-attribute=const \
+    -Wsuggest-attribute=format \
+    -Wsuggest-attribute=noreturn \
+    -Wsuggest-attribute=pure \
+    -Wsuggest-final-methods \
+    -Wsuggest-final-types \
     -Wswitch-enum \
+    -Wundef \
+    -Wunsafe-loop-optimizations \
+    -Wunreachable-code \
+    -Wvector-operation-performance \
     -Wwrite-strings \
     -pedantic
 
+WARNING_CFLAGS := \
+	$(WARNING_COMMON_FLAGS) \
+    -Wc++-compat \
+    -Wbad-function-cast \
+    -Wjump-misses-init \
+    -Wmissing-prototypes \
+    -Wtraditional \
+    -Wtraditional-conversion \
+    -Wunsuffixed-float-constants
+
 WARNING_CXXFLAGS := \
-    $(WARNING_CFLAGS) \
+    $(WARNING_COMMON_FLAGS) \
+    -Wc++11-compat \
+    -Wc++14-compat \
     -Weffc++ \
-    -Woverloaded-virtual
+    -Woverloaded-virtual \
+    -Wsign-promo \
+    -Wstrict-null-sentinel \
+    -Wsuggest-override \
+    -Wuseless-cast \
+    -Wzero-as-null-pointer-constant
 
 SHARED_FLAGS := -shared
 ifneq ($(OS),Windows_NT)
@@ -114,7 +150,7 @@ depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
 
 syntax:
-	$(CXX) $(SRCS) $(STD_CXXFLAGS) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
+	$(CXX) $(SRCS) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)

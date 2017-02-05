@@ -27,18 +27,44 @@ else
     OPT_CFLAGS  := $(OPT_CFLAGS) -Wno-unknown-pragmas
 endif
 
-WARNING_CFLAGS := \
+WARNING_COMMON_FLAGS := \
     -Wall \
     -Wextra \
+    -Wabi \
     -Wcast-align \
     -Wcast-qual \
     -Wconversion \
+    -Wdisabled-optimization \
+    -Wdouble-promotion \
     -Wfloat-equal \
     -Wformat=2 \
+    -Winit-self \
+    -Winline \
+    -Wlogical-op \
+    -Wmissing-declarations \
+    -Wno-return-local-addr \
     -Wpointer-arith \
+    -Wredundant-decls \
     -Wstrict-aliasing=2 \
+    -Wsuggest-attribute=const \
+    -Wsuggest-attribute=format \
+    -Wsuggest-attribute=noreturn \
+    -Wsuggest-attribute=pure \
+    -Wsuggest-final-methods \
+    -Wsuggest-final-types \
     -Wswitch-enum \
+    -Wundef \
+    -Wunsafe-loop-optimizations \
+    -Wunreachable-code \
+    -Wvector-operation-performance \
     -Wwrite-strings \
+    -Wc++-compat \
+    -Wbad-function-cast \
+    -Wjump-misses-init \
+    -Wmissing-prototypes \
+    -Wtraditional \
+    -Wtraditional-conversion \
+    -Wunsuffixed-float-constants \
     -pedantic
 
 CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
@@ -86,7 +112,7 @@ depends:
 	$(CC) -MM $(SRCS) > $(DEPENDS)
 
 syntax:
-	$(CC) $(SRCS) $(STD_CFLAGS) -fsyntax-only $(WARNING_CFLAGS) $(INCS) $(MACROS)
+	$(CC) $(SRCS) -fsyntax-only $(WARNING_CFLAGS) $(INCS) $(MACROS)
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
