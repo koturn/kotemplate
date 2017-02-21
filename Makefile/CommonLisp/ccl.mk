@@ -2,7 +2,7 @@ LISP      := ccl
 MKDIR     := mkdir -p
 CP        := cp
 RM        := rm -f
-LISPFLAGS := --quiet
+LISPFLAGS := -no-init --quiet
 TARGET    := <+CURSOR+>
 TOPLEVEL  := main
 SRCS      := $(addsuffix .lisp,$(basename $(TARGET)))
@@ -18,6 +18,7 @@ COMPILE_FORM := \
 "(ccl:save-application \"$(TARGET)\" \
                        :toplevel-function \#'$(TOPLEVEL) \
                        :prepend-kernel t)"
+
 
 %.exe:
 	$(LISP) --load $(SRCS) --eval $(COMPILE_FORM)

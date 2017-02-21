@@ -2,7 +2,7 @@ LISP      := sbcl
 MKDIR     := mkdir -p
 CP        := cp
 RM        := rm -f
-LISPFLAGS := --quit
+LISPFLAGS := --noinform --no-sysinit --no-userinit --quit
 TARGET    := <+CURSOR+>
 TOPLEVEL  := main
 SRCS      := $(addsuffix .lisp,$(basename $(TARGET)))
@@ -20,6 +20,7 @@ COMPILE_FORM := \
                            :toplevel \
                            \#'$(TOPLEVEL) \
                            :purify t)"
+
 
 %.exe:
 	$(LISP) $(LISPFLAGS) --load $(SRCS) --eval $(COMPILE_FORM)
