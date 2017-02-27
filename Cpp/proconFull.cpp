@@ -52,8 +52,10 @@ typedef unsigned char  uchar;
 using namespace std;
 
 
-int main(void) {
-  std::cin.tie(0);
+int
+main()
+{
+  std::cin.tie(nullptr);
   std::ios::sync_with_stdio(false);
   <+CURSOR+>
   return EXIT_SUCCESS;
