@@ -51,8 +51,6 @@ WARNING_CFLAGS := \
     -Wsuggest-attribute=format \
     -Wsuggest-attribute=noreturn \
     -Wsuggest-attribute=pure \
-    -Wsuggest-final-methods \
-    -Wsuggest-final-types \
     -Wswitch-enum \
     -Wundef \
     -Wunsafe-loop-optimizations \
@@ -63,8 +61,6 @@ WARNING_CFLAGS := \
     -Wbad-function-cast \
     -Wjump-misses-init \
     -Wmissing-prototypes \
-    -Wtraditional \
-    -Wtraditional-conversion \
     -Wunsuffixed-float-constants \
     -pedantic
 
@@ -98,7 +94,7 @@ INSTALLED_TARGET := $(if $(PREFIX),$(PREFIX),/usr/local)/bin/$(TARGET)
 	$(CC) $(LDFLAGS) $(filter %.c %.o,$^) $(LDLIBS) -o $@
 
 
-.PHONY: all test depends syntax ctags install uninstall clean cleanobj
+.PHONY: all test depends asm syntax ctags install uninstall clean distclean
 all: $(TARGET)
 $(TARGET): $(OBJS)
 
@@ -112,8 +108,11 @@ test: $(TARGET)
 depends:
 	$(CC) -MM $(SRCS) > $(DEPENDS)
 
+asm:
+	$(CC) $(SRCS) -S --verbose-asm $(CPPFLAGS) $(CFLAGS)
+
 syntax:
-	$(CC) $(SRCS) -fsyntax-only $(WARNING_CFLAGS) $(INCS) $(MACROS)
+	$(CC) $(SRCS) -fsyntax-only $(CPPFLAGS) $(WARNING_CFLAGS)
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
@@ -127,7 +126,7 @@ uninstall:
 	$(RM) $(INSTALLED_TARGET)
 
 clean:
-	$(RM) $(TARGET) $(OBJS)
-
-cleanobj:
 	$(RM) $(OBJS)
+
+distclean:
+	$(RM) $(TARGET) $(OBJS)

@@ -73,8 +73,6 @@ WARNING_CFLAGS := \
     -Wbad-function-cast \
     -Wjump-misses-init \
     -Wmissing-prototypes \
-    -Wtraditional \
-    -Wtraditional-conversion \
     -Wunsuffixed-float-constants
 
 WARNING_CXXFLAGS := \
@@ -121,7 +119,7 @@ INSTALLED_TARGET := $(if $(PREFIX),$(PREFIX),/usr/local)/bin/$(TARGET)
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o,$^) $(LDLIBS) -o $@
 
 
-.PHONY: all test depends syntax ctags install uninstall clean cleanobj
+.PHONY: all test depends asm syntax ctags install uninstall clean distclean
 all: $(TARGET)
 $(TARGET): $(OBJS)
 
@@ -135,8 +133,11 @@ test: $(TARGET)
 depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
 
+asm:
+	$(CXX) $(SRCS) -S --verbose-asm $(CPPFLAGS) $(CXXFLAGS)
+
 syntax:
-	$(CXX) $(SRCS) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
+	$(CXX) $(SRCS) -fsyntax-only $(CPPFLAGS) $(WARNING_CXXFLAGS)
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
@@ -150,7 +151,7 @@ uninstall:
 	$(RM) $(INSTALLED_TARGET)
 
 clean:
-	$(RM) $(TARGET) $(OBJS)
-
-cleanobj:
 	$(RM) $(OBJS)
+
+distclean:
+	$(RM) $(TARGET) $(OBJS)

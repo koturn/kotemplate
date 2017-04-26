@@ -51,8 +51,6 @@ WARNING_CFLAGS := \
     -Wsuggest-attribute=format \
     -Wsuggest-attribute=noreturn \
     -Wsuggest-attribute=pure \
-    -Wsuggest-final-methods \
-    -Wsuggest-final-types \
     -Wswitch-enum \
     -Wundef \
     -Wunsafe-loop-optimizations \
@@ -63,14 +61,12 @@ WARNING_CFLAGS := \
     -Wbad-function-cast \
     -Wjump-misses-init \
     -Wmissing-prototypes \
-    -Wtraditional \
-    -Wtraditional-conversion \
     -Wunsuffixed-float-constants \
     -pedantic
 
 SHARED_FLAGS := -shared
 ifneq ($(OS),Windows_NT)
-    SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
+    SHARED_FLAGS += -fPIC
 endif
 
 CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
@@ -111,7 +107,7 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 	$(AR) $(ARFLAGS) $@ $(filter %.o,$^) $(LDLIBS)
 
 
-.PHONY: all shared static depends syntax ctags install uninstall clean cleanobj
+.PHONY: all shared static depends asm syntax ctags install uninstall clean distclean
 all: shared static
 
 shared: $(SHARED_LIBS)
@@ -127,8 +123,11 @@ $(foreach SRC,$(SRCS),$(eval $(filter-out \,$(shell $(CC) -MM $(SRC)))))
 depends:
 	$(CC) -MM $(SRCS) > $(DEPENDS)
 
+asm:
+	$(CC) $(SRCS) -S --verbose-asm $(CPPFLAGS) $(CFLAGS)
+
 syntax:
-	$(CC) $(SRCS) -fsyntax-only $(WARNING_CFLAGS) $(INCS) $(MACROS)
+	$(CC) $(SRCS) -fsyntax-only $(CPPFLAGS) $(WARNING_CFLAGS)
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
@@ -149,5 +148,5 @@ uninstall:
 clean:
 	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
 
-cleanobj:
+distclean:
 	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)

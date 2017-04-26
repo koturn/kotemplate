@@ -73,8 +73,6 @@ WARNING_CFLAGS := \
     -Wbad-function-cast \
     -Wjump-misses-init \
     -Wmissing-prototypes \
-    -Wtraditional \
-    -Wtraditional-conversion \
     -Wunsuffixed-float-constants
 
 WARNING_CXXFLAGS := \
@@ -91,7 +89,7 @@ WARNING_CXXFLAGS := \
 
 SHARED_FLAGS := -shared
 ifneq ($(OS),Windows_NT)
-    SHARED_FLAGS := $(SHARED_FLAGS) -fPIC
+    SHARED_FLAGS += $(SHARED_FLAGS) -fPIC
 endif
 
 CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
@@ -134,7 +132,7 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 	$(AR) $(ARFLAGS) $@ $(filter %.o,$^) $(LDLIBS)
 
 
-.PHONY: all shared static depends syntax ctags install uninstall clean cleanobj
+.PHONY: all shared static depends asm syntax ctags install uninstall clean distclean
 all: shared static
 
 shared: $(SHARED_LIB)
@@ -150,8 +148,11 @@ $(foreach SRC,$(SRCS),$(eval $(filter-out \,$(shell $(CXX) -MM $(SRC)))))
 depends:
 	$(CXX) -MM $(SRCS) > $(DEPENDS)
 
+asm:
+	$(CXX) $(SRCS) -S --verbose-asm $(CPPFLAGS) $(CXXFLAGS)
+
 syntax:
-	$(CXX) $(SRCS) -fsyntax-only $(WARNING_CXXFLAGS) $(INCS) $(MACROS)
+	$(CXX) $(SRCS) -fsyntax-only $(CPPFLAGS) $(WARNING_CXXFLAGS)
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
@@ -170,7 +171,7 @@ uninstall:
 	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 clean:
-	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS)
+	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
 
-cleanobj:
-	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS)
+distclean:
+	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
