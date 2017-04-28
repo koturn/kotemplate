@@ -69,25 +69,28 @@ ifneq ($(OS),Windows_NT)
     SHARED_FLAGS += -fPIC
 endif
 
-CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
-AR         := ar
-MKDIR      := mkdir -p
-CP         := cp
-RM         := rm -f
-CTAGS      := ctags
-# MACROS   := MACRO
-# INCDIRS  := ./include
-CPPFLAGS   := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS     := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
-LDFLAGS    := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
-ARFLAGS    := crsv
-CTAGSFLAGS := -R --languages=c
-LDLIBS     := $(OPT_LDLIBS)
-BASENAME   := <+CURSOR+>
-SRCS       := $(addsuffix .c,$(basename $(BASENAME)))
-OBJS       := $(SRCS:.c=.o)
-PREFIX     := /usr/local
-DEPENDS    := depends.mk
+CC           := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
+AR           := ar
+MKDIR        := mkdir -p
+CP           := cp
+RM           := rm -f
+CTAGS        := ctags
+DOXYGEN      := doxygen
+DOXYFILE     := Doxyfile
+DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
+# MACROS     := MACRO
+# INCDIRS    := ./include
+CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
+CFLAGS       := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
+LDFLAGS      := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
+ARFLAGS      := crsv
+CTAGSFLAGS   := -R --languages=c
+LDLIBS       := $(OPT_LDLIBS)
+BASENAME     := <+CURSOR+>
+SRCS         := $(addsuffix .c,$(basename $(BASENAME)))
+OBJS         := $(SRCS:.c=.o)
+PREFIX       := /usr/local
+DEPENDS      := depends.mk
 
 ifeq ($(OS),Windows_NT)
     SHARED_LIBS := $(addsuffix .dll,$(BASENAME))
@@ -107,7 +110,7 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 	$(AR) $(ARFLAGS) $@ $(filter %.o,$^) $(LDLIBS)
 
 
-.PHONY: all shared static depends asm syntax ctags install uninstall clean distclean
+.PHONY: all shared static depends asm syntax ctags doxygen install uninstall clean distclean
 all: shared static
 
 shared: $(SHARED_LIBS)
@@ -132,6 +135,12 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
+doxygen: $(DOXYFILE)
+	$(DOXYGEN) $<
+
+$(DOXYFILE):
+	$(DOXYGEN) -g $@
+
 install: $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 $(INSTALLED_SHARED_LIB): $(SHARED_LIB)
@@ -149,4 +158,4 @@ clean:
 	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
 
 distclean:
-	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
+	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS) $(DOXYGENDISTS)

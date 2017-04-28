@@ -87,24 +87,27 @@ WARNING_CXXFLAGS := \
     -Wuseless-cast \
     -Wzero-as-null-pointer-constant
 
-CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
-CXX        := g++ $(if $(STDCXX),$(addprefix -std=,$(STDCXX)),-std=gnu++14)
-MKDIR      := mkdir -p
-CP         := cp
-RM         := rm -f
-CTAGS      := ctags
-# MACROS   := MACRO
-# INCDIRS  := ./include
-CPPFLAGS   := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS     := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS)
-CXXFLAGS   := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
-LDFLAGS    := -pipe $(OPT_LDFLAGS)
-LDLIBS     := $(OPT_LDLIBS)
-CTAGSFLAGS := -R --languages=c,c++
-TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .cpp,$(basename $(TARGET)))
-OBJS       := $(foreach PAT,%.cpp %.cxx %.cc,$(patsubst $(PAT),%.o,$(filter $(PAT),$(SRCS))))
-DEPENDS    := depends.mk
+CC           := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
+CXX          := g++ $(if $(STDCXX),$(addprefix -std=,$(STDCXX)),-std=gnu++14)
+MKDIR        := mkdir -p
+CP           := cp
+RM           := rm -f
+CTAGS        := ctags
+DOXYGEN      := doxygen
+DOXYFILE     := Doxyfile
+DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
+# MACROS     := MACRO
+# INCDIRS    := ./include
+CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
+CFLAGS       := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS)
+CXXFLAGS     := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
+LDFLAGS      := -pipe $(OPT_LDFLAGS)
+LDLIBS       := $(OPT_LDLIBS)
+CTAGSFLAGS   := -R --languages=c,c++
+TARGET       := <+CURSOR+>
+SRCS         := $(addsuffix .cpp,$(basename $(TARGET)))
+OBJS         := $(foreach PAT,%.cpp %.cxx %.cc,$(patsubst $(PAT),%.o,$(filter $(PAT),$(SRCS))))
+DEPENDS      := depends.mk
 
 ifeq ($(OS),Windows_NT)
     TARGET := $(addsuffix .exe,$(TARGET))
@@ -119,7 +122,7 @@ INSTALLED_TARGET := $(if $(PREFIX),$(PREFIX),/usr/local)/bin/$(TARGET)
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o,$^) $(LDLIBS) -o $@
 
 
-.PHONY: all test depends asm syntax ctags install uninstall clean distclean
+.PHONY: all test depends asm syntax ctags doxygen install uninstall clean distclean
 all: $(TARGET)
 $(TARGET): $(OBJS)
 
@@ -142,6 +145,12 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
+doxygen: $(DOXYFILE)
+	$(DOXYGEN) $<
+
+$(DOXYFILE):
+	$(DOXYGEN) -g $@
+
 install: $(INSTALLED_TARGET)
 $(INSTALLED_TARGET): $(TARGET)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
@@ -154,4 +163,4 @@ clean:
 	$(RM) $(OBJS)
 
 distclean:
-	$(RM) $(TARGET) $(OBJS)
+	$(RM) $(TARGET) $(OBJS) $(DOXYGENDISTS)

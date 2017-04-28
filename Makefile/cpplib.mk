@@ -92,27 +92,30 @@ ifneq ($(OS),Windows_NT)
     SHARED_FLAGS += $(SHARED_FLAGS) -fPIC
 endif
 
-CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
-CXX        := g++ $(if $(STDCXX),$(addprefix -std=,$(STDCXX)),-std=gnu++14)
-AR         := ar
-MKDIR      := mkdir -p
-CP         := cp
-RM         := rm -f
-CTAGS      := ctags
-# MACROS   := MACRO
-# INCDIRS  := ./include
-CPPFLAGS   := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS     := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
-CXXFLAGS   := -pipe $(SHARED_FLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
-LDFLAGS    := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
-LDLIBS     := $(OPT_LDLIBS)
-ARFLAGS    := crsv
-CTAGSFLAGS := -R --languages=c,c++
-BASENAME   := <+CURSOR+>
-SRCS       := $(addsuffix .cpp,$(basename $(BASENAME)))
-OBJS       := $(foreach PAT,%.cpp %.cxx %.cc,$(patsubst $(PAT),%.o,$(filter $(PAT),$(SRCS))))
-PREFIX     := /usr/local
-DEPENDS    := depends.mk
+CC           := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
+CXX          := g++ $(if $(STDCXX),$(addprefix -std=,$(STDCXX)),-std=gnu++14)
+AR           := ar
+MKDIR        := mkdir -p
+CP           := cp
+RM           := rm -f
+CTAGS        := ctags
+DOXYGEN      := doxygen
+DOXYFILE     := Doxyfile
+DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
+# MACROS     := MACRO
+# INCDIRS    := ./include
+CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
+CFLAGS       := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
+CXXFLAGS     := -pipe $(SHARED_FLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
+LDFLAGS      := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
+LDLIBS       := $(OPT_LDLIBS)
+ARFLAGS      := crsv
+CTAGSFLAGS   := -R --languages=c,c++
+BASENAME     := <+CURSOR+>
+SRCS         := $(addsuffix .cpp,$(basename $(BASENAME)))
+OBJS         := $(foreach PAT,%.cpp %.cxx %.cc,$(patsubst $(PAT),%.o,$(filter $(PAT),$(SRCS))))
+PREFIX       := /usr/local
+DEPENDS      := depends.mk
 
 ifeq ($(OS),Windows_NT)
     SHARED_LIB := $(addsuffix .dll,$(BASENAME))
@@ -157,6 +160,12 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
+doxygen: $(DOXYFILE)
+	$(DOXYGEN) $<
+
+$(DOXYFILE):
+	$(DOXYGEN) -g $@
+
 install: $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 $(INSTALLED_SHARED_LIB): $(SHARED_LIB)
@@ -174,4 +183,4 @@ clean:
 	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
 
 distclean:
-	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
+	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS) $(DOXYGENDISTS)

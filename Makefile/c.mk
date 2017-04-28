@@ -1,5 +1,4 @@
-### This Makefile was written for GNU Make. ###
-ifeq ($(DEBUG),true)
+### This Makefile was written for GNU Make. ### ifeq ($(DEBUG),true)
     OPT_CFLAGS  := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
     OPT_LDLIBS  := -lssp
 ifneq ($(shell echo $$OSTYPE),cygwin)
@@ -64,22 +63,25 @@ WARNING_CFLAGS := \
     -Wunsuffixed-float-constants \
     -pedantic
 
-CC         := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
-MKDIR      := mkdir -p
-CP         := cp
-RM         := rm -f
-CTAGS      := ctags
-# MACROS   := MACRO
-# INCDIRS  := ./include
-CPPFLAGS   := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS     := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
-LDFLAGS    := -pipe $(OPT_LDFLAGS)
-CTAGSFLAGS := -R --languages=c
-LDLIBS     := $(OPT_LDLIBS)
-TARGET     := <+CURSOR+>
-SRCS       := $(addsuffix .c,$(basename $(TARGET)))
-OBJS       := $(SRCS:.c=.o)
-DEPENDS    := depends.mk
+CC           := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
+MKDIR        := mkdir -p
+CP           := cp
+RM           := rm -f
+CTAGS        := ctags
+DOXYGEN      := doxygen
+DOXYFILE     := Doxyfile
+DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
+# MACROS     := MACRO
+# INCDIRS    := ./include
+CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
+CFLAGS       := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS) $(INCS) $(MACROS)
+LDFLAGS      := -pipe $(OPT_LDFLAGS)
+CTAGSFLAGS   := -R --languages=c
+LDLIBS       := $(OPT_LDLIBS)
+TARGET       := <+CURSOR+>
+SRCS         := $(addsuffix .c,$(basename $(TARGET)))
+OBJS         := $(SRCS:.c=.o)
+DEPENDS      := depends.mk
 
 ifeq ($(OS),Windows_NT)
     TARGET := $(addsuffix .exe,$(TARGET))
@@ -94,7 +96,7 @@ INSTALLED_TARGET := $(if $(PREFIX),$(PREFIX),/usr/local)/bin/$(TARGET)
 	$(CC) $(LDFLAGS) $(filter %.c %.o,$^) $(LDLIBS) -o $@
 
 
-.PHONY: all test depends asm syntax ctags install uninstall clean distclean
+.PHONY: all test depends asm syntax ctags doxygen install uninstall clean distclean
 all: $(TARGET)
 $(TARGET): $(OBJS)
 
@@ -117,6 +119,12 @@ syntax:
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
 
+doxygen: $(DOXYFILE)
+	$(DOXYGEN) $<
+
+$(DOXYFILE):
+	$(DOXYGEN) -g $@
+
 install: $(INSTALLED_TARGET)
 $(INSTALLED_TARGET): $(TARGET)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
@@ -129,4 +137,4 @@ clean:
 	$(RM) $(OBJS)
 
 distclean:
-	$(RM) $(TARGET) $(OBJS)
+	$(RM) $(TARGET) $(OBJS) $(DOXYGENDISTS)
