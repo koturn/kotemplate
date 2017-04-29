@@ -1,0 +1,20 @@
+sudo: false
+cache: apt
+language: cpp
+compiler:
+  - g++
+  - clang++
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.8
+      - llvm-toolchain-precise
+    packages:
+      - clang-3.8
+      - g++-6
+      - gcc-6
+install:
+  - [ "$CXX" = 'g++' ] && export CC='g++-6 -std=gnu11' CXX='g++-6 -std=gnu++14' || :
+  - [ "$CXX" = 'clang++' ] && export CC='clang-3.8 -std=gnu11' CXX='clang++-3.8 -std=gnu++14' || :
+script: make CC="$CC" CXX="$CXX" && make test
