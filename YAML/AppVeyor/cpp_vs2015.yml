@@ -1,0 +1,14 @@
+version: 1.0.{build}
+image: Visual Studio 2015
+install:
+- cmd: >-
+    git submodule update --init
+
+    "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
+build_script:
+- cmd: nmake /nologo /f msvc.mk
+test_script:
+- cmd: nmake /nologo /f msvc.mk test
+artifacts:
+- path:
+  name:
