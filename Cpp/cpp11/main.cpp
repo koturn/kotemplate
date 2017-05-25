@@ -18,7 +18,7 @@
  * @return  Exit-status
  */
 auto
-main(int argc, const char *argv[]) -> int
+main(int argc, const char* argv[]) -> int
 {
   std::cout << "Hello World!" << std::endl;
   <+CURSOR+>

@@ -18,7 +18,7 @@
  * @return  Exit-status
  */
 int
-main(int argc, const char *argv[])
+main(int argc, const char* argv[])
 {
   printf("Hello World!\n");
   <+CURSOR+>

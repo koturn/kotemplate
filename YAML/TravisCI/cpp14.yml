@@ -15,6 +15,6 @@ addons:
       - g++-6
       - gcc-6
 install:
-  - [ "$CXX" = 'g++' ] && export CC='g++-6 -std=gnu11' CXX='g++-6 -std=gnu++14' || :
-  - [ "$CXX" = 'clang++' ] && export CC='clang-3.8 -std=gnu11' CXX='clang++-3.8 -std=gnu++14' || :
+  - [ "$CXX" = 'g++' ] && "export CC='g++-6 -std=gnu11' CXX='g++-6 -std=gnu++14' || :"
+  - [ "$CXX" = 'clang++' ] && "export CC='clang-3.8 -std=gnu11' CXX='clang++-3.8 -std=gnu++14' || :"
 script: make CC="$CC" CXX="$CXX" && make test
