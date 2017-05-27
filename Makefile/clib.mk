@@ -81,7 +81,7 @@ DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
 # MACROS     := MACRO
 # INCDIRS    := ./include
 CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS       := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
+CFLAGS       := -pipe -fvisibility=hidden $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
 LDFLAGS      := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
 ARFLAGS      := crsv
 CTAGSFLAGS   := -R --languages=c
@@ -111,7 +111,8 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
 
 .PHONY: all shared static depends asm syntax ctags doxygen install uninstall clean distclean
-all: shared static
+all: shared
+# all: static
 
 shared: $(SHARED_LIBS)
 $(SHARED_LIBS): $(OBJS)
@@ -155,7 +156,7 @@ uninstall:
 	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 clean:
-	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
+	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS)
 
 distclean:
-	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS) $(DOXYGENDISTS)
+	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS) $(DOXYGENDISTS)

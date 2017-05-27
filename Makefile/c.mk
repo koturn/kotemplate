@@ -1,4 +1,5 @@
 ### This Makefile was written for GNU Make. ### ifeq ($(DEBUG),true)
+ifeq ($(DEBUG),true)
     OPT_CFLAGS  := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
     OPT_LDLIBS  := -lssp
 ifneq ($(shell echo $$OSTYPE),cygwin)

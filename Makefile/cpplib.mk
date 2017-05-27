@@ -105,8 +105,8 @@ DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
 # MACROS     := MACRO
 # INCDIRS    := ./include
 CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS       := -pipe $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
-CXXFLAGS     := -pipe $(SHARED_FLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
+CFLAGS       := -pipe -fvisibility=hidden $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
+CXXFLAGS     := -pipe -fvisibility=hidden -fvisibility-inlines-hidden $(SHARED_FLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
 LDFLAGS      := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
 LDLIBS       := $(OPT_LDLIBS)
 ARFLAGS      := crsv
@@ -136,7 +136,8 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
 
 .PHONY: all shared static depends asm syntax ctags install uninstall clean distclean
-all: shared static
+all: shared
+# all: static
 
 shared: $(SHARED_LIB)
 $(SHARED_LIB): $(OBJS)
@@ -180,7 +181,7 @@ uninstall:
 	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
 
 clean:
-	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS)
+	$(RM) $(OBJS)
 
 distclean:
-	$(RM) $(SHARED_LIBS) $(STATIC_LIBS) $(OBJS) $(DOXYGENDISTS)
+	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS) $(DOXYGENDISTS)
