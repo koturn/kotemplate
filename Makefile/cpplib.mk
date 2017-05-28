@@ -1,4 +1,7 @@
 ### This Makefile was written for GNU Make. ###
+LIBRARY_TYPE := shared
+# LIBRARY_TYPE := static
+
 ifeq ($(DEBUG),true)
     OPT_CFLAGS   := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
     OPT_LDLIBS   := -lssp
@@ -87,10 +90,15 @@ WARNING_CXXFLAGS := \
     -Wuseless-cast \
     -Wzero-as-null-pointer-constant
 
-SHARED_FLAGS := -shared
-ifneq ($(OS),Windows_NT)
-    SHARED_FLAGS += $(SHARED_FLAGS) -fPIC
+ifeq ($(LIBRARY_TYPE),shared)
+    SHARED_CFLAGS := -fvisibility=hidden
+    ifneq ($(OS),Windows_NT)
+        SHARED_CFLAGS += -fPIC $(SHARED_CFLAGS)
+    endif
+    SHARED_CXXFLAGS := $(SHARED_CFLAGS) -fvisibility-inlines-hidden
+    SHARED_LDFLAGS := -shared
 endif
+
 
 CC           := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
 CXX          := g++ $(if $(STDCXX),$(addprefix -std=,$(STDCXX)),-std=gnu++14)
@@ -105,9 +113,9 @@ DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
 # MACROS     := MACRO
 # INCDIRS    := ./include
 CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS       := -pipe -fvisibility=hidden $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
-CXXFLAGS     := -pipe -fvisibility=hidden -fvisibility-inlines-hidden $(SHARED_FLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
-LDFLAGS      := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
+CFLAGS       := -pipe $(SHARED_CFLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
+CXXFLAGS     := -pipe $(SHARED_CXXFLAGS) $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
+LDFLAGS      := -pipe $(SHARED_LDFLAGS) $(OPT_LDFLAGS)
 LDLIBS       := $(OPT_LDLIBS)
 ARFLAGS      := crsv
 CTAGSFLAGS   := -R --languages=c,c++
@@ -126,6 +134,14 @@ STATIC_LIB := $(addprefix lib,$(addsuffix .a,$(BASENAME)))
 INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
 INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
+ifeq ($(LIBRARY_TYPE),shared)
+    TARGET_LIB := $(SHARED_LIB)
+    INSTALLED_TARGET_LIB := $(INSTALLED_SHARED_LIB)
+else
+    TARGET_LIB := $(STATIC_LIB)
+    INSTALLED_TARGET_LIB := $(INSTALLED_STATIC_LIB)
+endif
+
 
 %.dll:
 	$(CXX) $(LDFLAGS) $(filter %.c %.cpp %.cxx %.cc %.o,$^) $(LDLIBS) -o $@
@@ -135,15 +151,10 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 	$(AR) $(ARFLAGS) $@ $(filter %.o,$^) $(LDLIBS)
 
 
-.PHONY: all shared static depends asm syntax ctags install uninstall clean distclean
-all: shared
-# all: static
+.PHONY: all depends asm syntax ctags install uninstall clean distclean
+all: $(TARGET_LIB)
 
-shared: $(SHARED_LIB)
-$(SHARED_LIB): $(OBJS)
-
-static: $(STATIC_LIB)
-$(STATIC_LIB): $(OBJS)
+$(TARGET_LIB): $(OBJS)
 
 # $(OBJS): $(SRCS)
 # -include $(DEPENDS)
@@ -167,21 +178,17 @@ doxygen: $(DOXYFILE)
 $(DOXYFILE):
 	$(DOXYGEN) -g $@
 
-install: $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
+install: $(INSTALLED_TARGET_LIB)
 
-$(INSTALLED_SHARED_LIB): $(SHARED_LIB)
-	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
-	$(CP) $< $@
-
-$(INSTALLED_STATIC_LIB): $(STATIC_LIB)
+$(INSTALLED_TARGET_LIB): $(TARGET_LIB)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
 
 uninstall:
-	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
+	$(RM) $(INSTALLED_TARGET_LIB)
 
 clean:
 	$(RM) $(OBJS)
 
 distclean:
-	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS) $(DOXYGENDISTS)
+	$(RM) $(TARGET_LIB) $(OBJS) $(DOXYGENDISTS)

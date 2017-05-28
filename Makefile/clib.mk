@@ -1,4 +1,7 @@
 ### This Makefile was written for GNU Make. ###
+LIBRARY_TYPE := shared
+# LIBRARY_TYPE := static
+
 ifeq ($(DEBUG),true)
     OPT_CFLAGS  := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
     OPT_LDLIBS  := -lssp
@@ -64,10 +67,14 @@ WARNING_CFLAGS := \
     -Wunsuffixed-float-constants \
     -pedantic
 
-SHARED_FLAGS := -shared
-ifneq ($(OS),Windows_NT)
-    SHARED_FLAGS += -fPIC
+ifeq ($(LIBRARY_TYPE),shared)
+    SHARED_CFLAGS := -fvisibility=hidden
+    ifneq ($(OS),Windows_NT)
+        SHARED_CFLAGS += -fPIC
+    endif
+    SHARED_LDFLAGS := -shared
 endif
+
 
 CC           := gcc $(if $(STDC),$(addprefix -std=,$(STDC)),-std=gnu11)
 AR           := ar
@@ -81,8 +88,8 @@ DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
 # MACROS     := MACRO
 # INCDIRS    := ./include
 CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
-CFLAGS       := -pipe -fvisibility=hidden $(SHARED_FLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
-LDFLAGS      := -pipe $(SHARED_FLAGS) $(OPT_LDFLAGS)
+CFLAGS       := -pipe $(SHARED_CFLAGS) $(WARNING_CFLAGS) $(OPT_CFLAGS)
+LDFLAGS      := -pipe $(SHARED_LDFLAGS) $(OPT_LDFLAGS)
 ARFLAGS      := crsv
 CTAGSFLAGS   := -R --languages=c
 LDLIBS       := $(OPT_LDLIBS)
@@ -101,6 +108,14 @@ STATIC_LIBS := $(addprefix lib,$(addsuffix .a,$(BASENAME)))
 INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
 INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
+ifeq ($(LIBRARY_TYPE),shared)
+    TARGET_LIB := $(SHARED_LIB)
+    INSTALLED_TARGET_LIB := $(INSTALLED_SHARED_LIB)
+else
+    TARGET_LIB := $(STATIC_LIB)
+    INSTALLED_TARGET_LIB := $(INSTALLED_STATIC_LIB)
+endif
+
 
 %.dll:
 	$(CC) $(LDFLAGS) $(filter %.c %.o,$^) $(LDLIBS) -o $@
@@ -110,15 +125,10 @@ INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 	$(AR) $(ARFLAGS) $@ $(filter %.o,$^) $(LDLIBS)
 
 
-.PHONY: all shared static depends asm syntax ctags doxygen install uninstall clean distclean
-all: shared
-# all: static
+.PHONY: all depends asm syntax ctags doxygen install uninstall clean distclean
+all: $(TARGET_LIB)
 
-shared: $(SHARED_LIBS)
-$(SHARED_LIBS): $(OBJS)
-
-static: $(STATIC_LIBS)
-$(STATIC_LIBS): $(OBJS)
+$(TARGET_LIB): $(OBJS)
 
 # $(OBJS): $(SRCS)
 # -include $(DEPENDS)
@@ -142,21 +152,17 @@ doxygen: $(DOXYFILE)
 $(DOXYFILE):
 	$(DOXYGEN) -g $@
 
-install: $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
+install: $(INSTALLED_TARGET_LIB)
 
-$(INSTALLED_SHARED_LIB): $(SHARED_LIB)
-	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
-	$(CP) $< $@
-
-$(INSTALLED_STATIC_LIB): $(STATIC_LIB)
+$(INSTALLED_TARGET_LIB): $(TARGET_LIB)
 	@[ ! -d $(@D) ] && $(MKDIR) $(@D) || :
 	$(CP) $< $@
 
 uninstall:
-	$(RM) $(INSTALLED_SHARED_LIB) $(INSTALLED_STATIC_LIB)
+	$(RM) $(INSTALLED_TARGET_LIB)
 
 clean:
-	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS)
+	$(RM) $(OBJS)
 
 distclean:
-	$(RM) $(SHARED_LIB) $(STATIC_LIB) $(OBJS) $(DOXYGENDISTS)
+	$(RM) $(TARGET_LIB) $(OBJS) $(DOXYGENDISTS)
