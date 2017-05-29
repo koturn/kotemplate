@@ -1,39 +1,39 @@
 ### This Makefile was written for GNU Make. ###
-LIBRARY_TYPE := shared
-# LIBRARY_TYPE := static
+LIBTYPE := shared
+# LIBTYPE := static
 
 ifeq ($(DEBUG),true)
-    OPT_CFLAGS   := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
-    OPT_LDLIBS   := -lssp
-ifneq ($(shell echo $$OSTYPE),cygwin)
-    OPT_CFLAGS   += -fsanitize=address -fno-omit-frame-pointer
-    OPT_LDLIBS   += -fsanitize=address
-endif
+    OPT_CFLAGS := -O0 -g3 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2
+    OPT_LDLIBS := -lssp
+    ifneq ($(shell echo $$OSTYPE),cygwin)
+        OPT_CFLAGS += -fsanitize=address -fno-omit-frame-pointer
+        OPT_LDLIBS += -fsanitize=address
+    endif
     OPT_CXXFLAGS := $(OPT_CFLAGS) -D_GLIBCXX_DEBUG
 else
-ifeq ($(OPT),true)
-    OPT_CFLAGS   := -flto -Ofast -march=native -DNDEBUG
-    OPT_CXXFLAGS := $(OPT_CFLAGS)
-    OPT_LDFLAGS  := -flto -s
-else
-ifeq ($(LTO),true)
-    OPT_CFLAGS   := -flto -DNDEBUG
-    OPT_CXXFLAGS := $(OPT_CFLAGS)
-    OPT_LDFLAGS  := -flto
-else
-    OPT_CFLAGS   := -O3 -DNDEBUG
-    OPT_CXXFLAGS := $(OPT_CFLAGS)
-    OPT_LDFLAGS  := -s
-endif
-endif
+    ifeq ($(OPT),true)
+        OPT_CFLAGS := -flto -Ofast -march=native -DNDEBUG
+        OPT_CXXFLAGS := $(OPT_CFLAGS)
+        OPT_LDFLAGS := -flto -s
+    else
+        ifeq ($(LTO),true)
+            OPT_CFLAGS := -flto -DNDEBUG
+            OPT_CXXFLAGS := $(OPT_CFLAGS)
+            OPT_LDFLAGS := -flto
+        else
+            OPT_CFLAGS := -O3 -DNDEBUG
+            OPT_CXXFLAGS := $(OPT_CFLAGS)
+            OPT_LDFLAGS := -s
+        endif
+    endif
 endif
 
 ifeq ($(OMP),true)
-    OPT_CFLAGS   += -fopenmp
+    OPT_CFLAGS += -fopenmp
     OPT_CXXFLAGS += -fopenmp
-    OPT_LDFLAGS  += -fopenmp
+    OPT_LDFLAGS += -fopenmp
 else
-    OPT_CFLAGS   += -Wno-unknown-pragmas
+    OPT_CFLAGS += -Wno-unknown-pragmas
     OPT_CXXFLAGS += -Wno-unknown-pragmas
 endif
 
@@ -90,10 +90,10 @@ WARNING_CXXFLAGS := \
     -Wuseless-cast \
     -Wzero-as-null-pointer-constant
 
-ifeq ($(LIBRARY_TYPE),shared)
+ifeq ($(LIBTYPE),shared)
     SHARED_CFLAGS := -fvisibility=hidden
     ifneq ($(OS),Windows_NT)
-        SHARED_CFLAGS += -fPIC $(SHARED_CFLAGS)
+        SHARED_CFLAGS := -fPIC $(SHARED_CFLAGS)
     endif
     SHARED_CXXFLAGS := $(SHARED_CFLAGS) -fvisibility-inlines-hidden
     SHARED_LDFLAGS := -shared
@@ -134,7 +134,7 @@ STATIC_LIB := $(addprefix lib,$(addsuffix .a,$(BASENAME)))
 INSTALLED_SHARED_LIB := $(addprefix $(PREFIX)/bin/,$(notdir $(SHARED_LIB)))
 INSTALLED_STATIC_LIB := $(addprefix $(PREFIX)/lib/,$(notdir $(STATIC_LIB)))
 
-ifeq ($(LIBRARY_TYPE),shared)
+ifeq ($(LIBTYPE),shared)
     TARGET_LIB := $(SHARED_LIB)
     INSTALLED_TARGET_LIB := $(INSTALLED_SHARED_LIB)
 else
