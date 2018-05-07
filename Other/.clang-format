@@ -5,7 +5,7 @@ AccessModifierOffset: -2
 AlignEscapedNewlinesLeft: false
 AlignTrailingComments: false
 AlwaysBreakAfterDefinitionReturnType: All
-AlwaysBreakAfterReturnType: All
+# AlwaysBreakAfterReturnType: All
 BraceWrapping:
   AfterClass: true
   AfterEnum: true
@@ -17,8 +17,8 @@ BreakBeforeBraces: Custom
 BreakConstructorInitializersBeforeComma: true
 ColumnLimit: 0
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
-# ConstructorInitializerIndentWidth: 4
-# ContinuationIndentWidth: 4
-# IndentWidth: 2
-TabWidth: 4
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+IndentWidth: 2
+TabWidth: 2
 ...
