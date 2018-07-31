@@ -8,19 +8,19 @@
 " ============================================================================
 
 
-function! textobj#<+FILEBASE+>#select_a() abort
+function! textobj#<+FILEBASE+>#select_a() abort " {{{
   <+CURSOR+>
   return ['v', head_pos, tail_pos]
-endfunction
+endfunction " }}}
 
-function! textobj#<+FILEBASE+>#select_i() abort
+function! textobj#<+FILEBASE+>#select_i() abort " {{{
   return ['v', head_pos, tail_pos]
-endfunction
+endfunction " }}}
 
-function! textobj#<+FILEBASE+>#select_A() abort
+function! textobj#<+FILEBASE+>#select_A() abort " {{{
   return ['V', head_pos, tail_pos]
-endfunction
+endfunction " }}}
 
-function! textobj#<+FILEBASE+>#select_I() abort
+function! textobj#<+FILEBASE+>#select_I() abort " {{{
   return ['V', head_pos, tail_pos]
-endfunction
+endfunction " }}}

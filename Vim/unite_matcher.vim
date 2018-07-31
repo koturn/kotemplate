@@ -10,12 +10,14 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+" {{{ s:matcher
 let s:matcher = {
       \ 'name': '<+FILEBASE+>',
       \ 'description': 'my matcher',
       \}
+" }}}
 
-function! s:matcher.filter(candidates, context) abort
+function! s:matcher.filter(candidates, context) abort " {{{
   <+CURSOR+>
   if a:context.input ==# ''
     return unite#filters#filter_matcher(a:candidates, '', a:context)
@@ -29,16 +31,16 @@ function! s:matcher.filter(candidates, context) abort
     let candidates = unite#filters#matcher_regexp#regexp_matcher(candidates, input, a:context)
   endfor
   return candidates
-endfunction
+endfunction " }}}
 
-function! s:matcher.pattern(input) abort
+function! s:matcher.pattern(input) abort " {{{
   return substitute(a:input, '\$cd', getcwd(), 'g')
-endfunction
+endfunction " }}}
 
 
-function! unite#filters#<+FILEBASE+>#define() abort
+function! unite#filters#<+FILEBASE+>#define() abort " {{{
   return s:matcher
-endfunction
+endfunction " }}}
 
 
 let &cpo = s:save_cpo

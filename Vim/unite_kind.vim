@@ -10,24 +10,28 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+" {{{ s:kind
 let s:kind = {
       \ 'name': '<+FILEBASE+>',
       \ 'action_table': {},
       \ 'default_action': 'my_action',
       \ 'parents': ['file'],
       \}
+" }}}
 
+" {{{ s:kind.action_table.my_action
 let s:kind.action_table.my_action = {
       \ 'description'
       \}
-function! s:kind.action_table.my_action.func(candidate) abort
+function! s:kind.action_table.my_action.func(candidate) abort " {{{
   <+CURSOR+>
-endfunction
+endfunction " }}}
+" }}}
 
 
-function! unite#kinds#<+FILEBASE+>#define() abort
+function! unite#kinds#<+FILEBASE+>#define() abort " {{{
   return s:kind
-endfunction
+endfunction " }}}
 
 
 let &cpo = s:save_cpo

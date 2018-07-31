@@ -21,12 +21,13 @@ let s:ctrlp_builtins = ctrlp#getvar('g:ctrlp_builtins')
 "   command! CtrlP<+FILE_PASCAL+> call ctrlp#init(ctrlp#<+FILEBASE+>#id())
 " endif
 
-function! s:get_sid_prefix() abort
+function! s:get_sid_prefix() abort " {{{
   return matchstr(expand('<sfile>'), '^function \zs<SNR>\d\+_\zeget_sid_prefix$')
-endfunction
+endfunction " }}}
 let s:sid_prefix = s:get_sid_prefix()
 delfunction s:get_sid_prefix
 
+" {{{ g:ctrlp_ext_vars
 let g:ctrlp_ext_vars = add(get(g:, 'ctrlp_ext_vars', []), {
       \ 'init': s:sid_prefix . 'init()',
       \ 'accept': s:sid_prefix . 'accept',
@@ -35,24 +36,25 @@ let g:ctrlp_ext_vars = add(get(g:, 'ctrlp_ext_vars', []), {
       \ 'type': 'line',
       \ 'nolim': 1
       \})
+" }}}
 let s:id = s:ctrlp_builtins + len(g:ctrlp_ext_vars)
 unlet s:ctrlp_builtins s:sid_prefix
 
 
-function! ctrlp#<+FILEBASE+>#id() abort
+function! ctrlp#<+FILEBASE+>#id() abort " {{{
   return s:id
-endfunction
+endfunction " }}}
 
 
-function! s:init() abort
+function! s:init() abort " {{{
   <+CURSOR+>
   return []
-endfunction
+endfunction " }}}
 
-function! s:accept(mode, str) abort
+function! s:accept(mode, str) abort " {{{
   call ctrlp#exit()
   " Write actions
-endfunction
+endfunction " }}}
 
 
 let &cpo = s:save_cpo

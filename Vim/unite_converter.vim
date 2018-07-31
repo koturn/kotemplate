@@ -10,23 +10,25 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+" {{{ s:converter
 let s:converter = {
       \ 'name': '<+FILEBASE+>',
       \ 'description': 'my converter',
       \}
+" }}}
 
-function! s:converter.filter(candidates, context) abort
+function! s:converter.filter(candidates, context) abort " {{{
   <+CURSOR+>
   for candidate in a:candidates
     let candidate.word = candidate.word[0 : 29]
   endfor
   return a:candidates
-endfunction
+endfunction " }}}
 
 
-function! unite#filters#<+FILEBASE+>#define() abort
+function! unite#filters#<+FILEBASE+>#define() abort " {{{
   return s:converter
-endfunction
+endfunction " }}}
 
 
 let &cpo = s:save_cpo

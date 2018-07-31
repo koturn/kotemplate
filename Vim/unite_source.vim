@@ -10,31 +10,35 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+" {{{ s:source
 let s:source = {
       \ 'name': '<+FILEBASE+>',
       \ 'description': 'descriptions',
       \ 'action_table': {},
       \ 'default_action': 'my_action'
       \}
+" }}}
 
+" {{{ s:source.action_table.my_action
 let s:source.action_table.my_action = {
       \ 'description': 'my action'
       \}
-function! s:source.action_table.my_action.func(candidate) abort
+function! s:source.action_table.my_action.func(candidate) abort " {{{
   <+CURSOR+>
-endfunction
+endfunction " }}}
 
-function! s:source.gather_candidates(args, context) abort
+function! s:source.gather_candidates(args, context) abort " {{{
   let candidates = ['apple', 'banana', 'cake']
   return map(candidates, '{
         \ "word": v:val
         \}')
-endfunction
+endfunction " }}}
+" }}}
 
 
-function! unite#sources#<+FILEBASE+>#define() abort
+function! unite#sources#<+FILEBASE+>#define() abort " {{{
   return s:source
-endfunction
+endfunction " }}}
 
 
 let &cpo = s:save_cpo

@@ -21,12 +21,13 @@ let s:ctrlp_builtins = ctrlp#getvar('g:ctrlp_builtins')
 "   command! CtrlP<+FILE_PASCAL+> call ctrlp#init(ctrlp#<+FILEBASE+>#id())
 " endif
 
-function! s:get_sid_prefix() abort
+function! s:get_sid_prefix() abort " {{{
   return matchstr(expand('<sfile>'), '^function \zs<SNR>\d\+_\zeget_sid_prefix$')
-endfunction
+endfunction " }}}
 let s:sid_prefix = s:get_sid_prefix()
 delfunction s:get_sid_prefix
 
+" {{{ g:ctrlp_ext_var
 let g:ctrlp_ext_var = add(get(g:, 'ctrlp_ext_vars', []), {
       \ 'init': s:sid_prefix . 'init()',
       \ 'accept': s:sid_prefix . 'accept',
@@ -39,48 +40,49 @@ let g:ctrlp_ext_var = add(get(g:, 'ctrlp_ext_vars', []), {
       \ 'sort': 0,
       \ 'nolim': 1
       \})
+" }}}
 let s:id = s:ctrlp_builtins + len(g:ctrlp_ext_vars)
 unlet s:ctrlp_builtins s:sid_prefix
 
 
-function! ctrlp#<+FILEBASE+>#id() abort
+function! ctrlp#<+FILEBASE+>#id() abort " {{{
   return s:id
-endfunction
+endfunction " }}}
 
 
-function! s:init() abort
+function! s:init() abort " {{{
   call s:syntax()
   <+CURSOR+>
   return ["apple\tfirst candidate", "banana\tsecond candidate", "cake\tthird candidate"]
-endfunction
+endfunction " }}}
 
-function! s:accept(mode, str) abort
+function! s:accept(mode, str) abort " {{{
   call ctrlp#exit()
   " Write actions
   "   echo matchstr(a:str, '^.*\ze\t')
-endfunction
+endfunction " }}}
 
-function! s:enter() abort
+function! s:enter() abort " {{{
   " Called before s:init()
   "   let s:ft = &filetype
-endfunction
+endfunction " }}}
 
-function! s:exit() abort
+function! s:exit() abort " {{{
   " Called when exit ctrlp
-endfunction
+endfunction " }}}
 
-function! s:opts() abort
+function! s:opts() abort " {{{
   " Set options etc...
-endfunction
+endfunction " }}}
 
 
-function! s:syntax() abort
+function! s:syntax() abort " {{{
   if ctrlp#nosy()
     return
   endif
   call ctrlp#hicheck('CtrlP<+FILE_PASCAL+>TabExtra', 'Comment')
   syntax match CtrlP<+FILE_PASCAL+>TabExtra '\zs\t.*$'
-endfunction
+endfunction " }}}
 
 
 let &cpo = s:save_cpo

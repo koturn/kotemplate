@@ -10,20 +10,22 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+" {{{ s:sorter
 let s:sorter = {
       \ 'name': '<+FILEBASE+>',
       \ 'description': 'my sorter',
       \}
+" }}}
 
-function! s:sorter.filter(candidates, context) abort
+function! s:sorter.filter(candidates, context) abort " {{{
   <+CURSOR+>
   return unite#util#sort_by(a:candidates, 'v:val.word')
-endfunction
+endfunction " }}}
 
 
-function! unite#filters#<+FILEBASE+>#define() abort
+function! unite#filters#<+FILEBASE+>#define() abort " {{{
   return s:sorter
-endfunction
+endfunction " }}}
 
 
 let &cpo = s:save_cpo

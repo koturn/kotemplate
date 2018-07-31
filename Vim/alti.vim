@@ -13,12 +13,13 @@ set cpo&vim
 " Don't forget append following code to plugin/<+FILE+>
 " command! -bar Alti<+FILE_PASCAL+> call alti#init(alti#<+FILEBASE+>#define())
 
-function! s:get_sid_prefix() abort
+function! s:get_sid_prefix() abort " {{{
   return matchstr(expand('<sfile>'), '^function \zs<SNR>\d\+_\zeget_sid_prefix$')
-endfunction
+endfunction " }}}
 let s:sid_prefix = s:get_sid_prefix()
 delfunction s:get_sid_prefix
 
+" {{{ s:define
 let s:define = {
       \ 'name': '<+FILEBASE+>',
       \ 'default_text': '',
@@ -35,30 +36,32 @@ let s:define = {
       \ 'actions': {},
       \ 'bind': {}
       \}
+" }}}
 unlet s:sid_prefix
 
-function! alti#<+FILEBASE+>#define() abort
+function! alti#<+FILEBASE+>#define() abort " {{{
   return s:define
-endfunction
+endfunction " }}}
 
 
-function! s:enter() abort dict
+function! s:enter() abort dict " {{{
+  <+CURSOR+>
   let self.candidates = ['apple', 'banana', 'cake']
-endfunction
+endfunction " }}}
 
-function! s:cmpl(context) abort dict
+function! s:cmpl(context) abort dict " {{{
   return a:context.fuzzy_filtered(self.candidates)
-endfunction
+endfunction " }}}
 
-function! s:prompt(context) abort
+function! s:prompt(context) abort " {{{
   return '> '
-endfunction
+endfunction " }}}
 
-function! s:insertstr(context) abort
+function! s:insertstr(context) abort " {{{
   return substitute(a:context.selection, '^' . a:context.arglead, '', '')
-endfunction
+endfunction " }}}
 
-function! s:submitted(context, line) abort
+function! s:submitted(context, line) abort " {{{
   if len(a.context.inputs) == 0
     for input in a.context.inputs
       echomsg input
@@ -66,10 +69,10 @@ function! s:submitted(context, line) abort
   else
     echomsg a:context.selection
   endif
-endfunction
+endfunction " }}}
 
-function! s:canceled(context, line) abort
-endfunction
+function! s:canceled(context, line) abort " {{{
+endfunction " }}}
 
 
 let &cpo = s:save_cpo
