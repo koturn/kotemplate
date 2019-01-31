@@ -2,6 +2,11 @@
 #include <iostream>
 #include <vector>
 
+#if defined(__GNUC__) && !defined(__clang__)
+#  pragma GCC optimize("Ofast")
+#  pragma GCC target("sse4.2", "tune=native")
+#endif
+
 
 static std::vector<std::string>
 split(const std::string& str, char delim);

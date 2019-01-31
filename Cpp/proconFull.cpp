@@ -15,6 +15,23 @@
 #include <utility>
 #include <vector>
 
+#if defined(__GNUC__)
+#  if defined(__clang__)
+#    pragma GCC optimize("Ofast")
+#    pragma GCC target("sse4.2", "tune=native")
+#  endif  // defined(__clang__)
+#  include <x86intrin.h>
+#else
+#  include <intrin.h>
+#endif  // defined(__GNUC__)
+
+#ifdef _MSC_VER
+#  define VECTORCALL __vectorcall
+#else
+#  define VECTORCALL
+#endif  // _MSC_VER
+
+
 #define DUMP(var)  (cout << #var " = " << var << endl)
 #define SQ(n)      ((n) * (n))
 #define CUBE(n)    ((n) * (n) * (n))

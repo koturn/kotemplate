@@ -1,6 +1,11 @@
 #include <cstdlib>
 #include <iostream>
 
+#if defined(__GNUC__) && !defined(__clang__)
+#  pragma GCC optimize("Ofast")
+#  pragma GCC target("sse4.2", "tune=native")
+#endif
+
 
 int
 main()
