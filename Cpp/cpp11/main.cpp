@@ -7,7 +7,6 @@
  * @file    <+FILE+>
  * @version 0.1
  */
-#include <cstdlib>
 #include <iostream>
 
 
@@ -22,6 +21,5 @@ main(int argc, const char* argv[]) -> int
 {
   std::cout << "Hello World!" << std::endl;
   <+CURSOR+>
-  return EXIT_SUCCESS;
 }
 

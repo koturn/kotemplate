@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <iostream>
 #include <vector>
 
@@ -27,8 +26,6 @@ main()
     std::vector<std::string> tokens = split(line, ',');
     <+CURSOR+>
   }
-
-  return EXIT_SUCCESS;
 }
 
 

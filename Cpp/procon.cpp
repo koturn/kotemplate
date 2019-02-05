@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <iostream>
 
 #if defined(__GNUC__) && !defined(__clang__)
@@ -17,5 +16,4 @@ main()
   while (std::cin >> n) {
     std::cout << n << std::endl;
   }
-  return EXIT_SUCCESS;
 }

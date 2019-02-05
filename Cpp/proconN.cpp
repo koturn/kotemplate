@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <iostream>
 
 #if defined(__GNUC__) && !defined(__clang__)
@@ -20,6 +19,4 @@ main()
   for (auto&& e : vct) {
     std::cin >> e;
   }
-
-  return EXIT_SUCCESS;
 }

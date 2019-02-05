@@ -5,7 +5,6 @@
  * @file    <+FILE+>
  * @version 0.1
  */
-#include <cstdlib>
 #include <iostream>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
@@ -37,5 +36,4 @@ main(int argc, char *argv[])
     <+CURSOR+>
     cv::imshow(WINDOW_NAME, frame);
   }
-  return EXIT_SUCCESS;
 }

@@ -7,7 +7,6 @@
  * @file    <+FILE+>
  * @version 0.1
  */
-#include <cstdlib>
 #include <iostream>
 #include <getopt.h>
 
@@ -37,7 +36,6 @@ main(int argc, char* argv[])
 {
   parseArguments(argc, argv);
   <+CURSOR+>
-  return EXIT_SUCCESS;
 }
 
 
