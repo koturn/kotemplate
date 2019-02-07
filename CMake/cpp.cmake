@@ -1,18 +1,47 @@
-cmake_minimum_required(VERSION 2.8)
-project (ProjectName)
+cmake_minimum_required(VERSION <%= executable('cmake') ? split(systemlist('cmake --version')[0], ' ')[2] : '3.1' %>)
+project(CMakeProject)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 14)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(main
-  main.cpp
-  hoge.cpp)
-# find_package(X11 REQUIRED)
-# target_link_libraries(main)
+set(DEFAULT_BUILD_TYPE "Release")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
+  set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+# Version Requirements
+# if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
+#     message(FATAL_ERROR "GCC version must be at least 4.4!")
+#   endif()
+# elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+#   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.1)
+#     message(FATAL_ERROR "Clang version must be at least 3.1!")
+#   endif()
+# else()
+#   message(WARNING "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
+# endif()
+
+
+add_executable(<+CURSOR+>)
+# find_package(Threads REQUIRED)
+# target_link_libraries(main Threads::Threads)
+
+if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
+  add_definitions(-DNDEBUG)
+endif()
 
 if(MSVC)
+  if(CMAKE_C_FLAGS MATCHES "/W[0-4]")
+    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
+  endif()
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   else()
@@ -25,91 +54,253 @@ if(MSVC)
     -D_CRT_NONSTDC_NO_WARNINGS
     -D_CRT_SECURE_NO_WARNINGS)
 
-  foreach(flag_var
+  foreach(FLAG_VAR
+      CMAKE_C_FLAGS
+      CMAKE_C_FLAGS_DEBUG
+      CMAKE_C_FLAGS_RELEASE
+      CMAKE_C_FLAGS_MINSIZEREL
+      CMAKE_C_FLAGS_RELWITHDEBINFO
       CMAKE_CXX_FLAGS
       CMAKE_CXX_FLAGS_DEBUG
       CMAKE_CXX_FLAGS_RELEASE
       CMAKE_CXX_FLAGS_MINSIZEREL
       CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-    STRING (REGEX REPLACE "/RTC[^ ]*" "" ${flag_var} "${${flag_var}}")
-  endforeach(flag_var)
+    string(REGEX REPLACE "/RTC[^ ]*" "" ${FLAG_VAR} "${${FLAG_VAR}}")
+  endforeach(FLAG_VAR)
+
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Oi /Ot /Ox /Oy")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Oi /Ot /Ox /Oy /GL")
+  # set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} /Os")
 
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Oi /Ot /Ox /Oy")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Oi /Ot /Ox /Oy /GL")
   # set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /Os")
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wall -Wextra")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wabi")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wcast-align")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wcast-qual")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wconversion")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wdisabled-optimization")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wdouble-promotion")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wfloat-equal")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wformat=2")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Winit-self")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Winline")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wlogical-op")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wmissing-declarations")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wno-return-local-addr")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wpointer-arith")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wredundant-decls")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wstrict-aliasing=2")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wsuggest-attribute=const")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wsuggest-attribute=format")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wsuggest-attribute=noreturn")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wsuggest-attribute=pure")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wsuggest-final-methods")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wsuggest-final-types")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wswitch-enum")
-  # set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wundef")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wunsafe-loop-optimizations")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wunreachable-code")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wvector-operation-performance")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wwrite-strings")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -Wno-unknown-pragmas")
-  set(C_CXX_COMMON_WARNING_FLAGS "${C_CXX_COMMON_WARNING_FLAGS} -pedantic")
+else()
+  foreach(WARNING_FLAG
+      -Wall
+      -Wextra
+      -Wcast-align
+      -Wcast-qual
+      -Wconversion
+      -Wdisabled-optimization
+      -Wfloat-equal
+      -Wformat=2
+      -Winit-self
+      -Winline
+      -Wlogical-op
+      -Wmissing-declarations
+      -Wpointer-arith
+      -Wredundant-decls
+      -Wstrict-aliasing=2
+      -Wswitch-enum
+      -Wundef
+      -Wunsafe-loop-optimizations
+      -Wunreachable-code
+      -Wwrite-strings
+      -Wno-unknown-pragmas
+      -pedantic)
+    set(GNU_COMMON_WARNING_FLAGS "${GNU_COMMON_WARNING_FLAGS} ${WARNING_FLAG}")
+  endforeach(WARNING_FLAG)
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_CXX_COMMON_WARNING_FLAGS}")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wc++-compat")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wbad-function-cast")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-prototypes")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunsuffixed-float-constants")
+  foreach(WARNING_FLAG
+      -Wall
+      -Wextra
+      -Wabi
+      -Wcast-align
+      -Wcast-qual
+      -Wconversion
+      -Wdisabled-optimization
+      -Wfloat-equal
+      -Wformat=2
+      -Winit-self
+      -Winline
+      -Wmissing-declarations
+      -Wpointer-arith
+      -Wredundant-decls
+      -Wstrict-aliasing=2
+      -Wswitch-enum
+      -Wundef
+      -Wunreachable-code
+      -Wwrite-strings
+      -pedantic
+      -Wc++-compat
+      -Wbad-function-cast
+      -Wmissing-prototypes
+      -Wc++11-compat
+      -Weffc++
+      -Woverloaded-virtual
+      -Wsign-promo)
+    set(CLANG_COMMON_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS} ${WARNING_FLAG}")
+  endforeach(WARNING_FLAG)
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_CXX_COMMON_WARNING_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++11-compat")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++14-compat")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsign-promo")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wstrict-null-sentinel")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-override")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wuseless-cast")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wzero-as-null-pointer-constant")
+  if(CMAKE_COMPILER_IS_GNUCC)
+    set(C_WARNING_FLAGS "${GNU_COMMON_WARNING_FLAGS}")
+    foreach(WARNING_FLAG
+        -Wc++-compat
+        -Wbad-function-cast
+        -Wmissing-prototypes
+        -Wunsuffixed-float-constants)
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+    endforeach(WARNING_FLAG)
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.5 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 4.5)
+      message("-- Add warning flags implemented in gcc 4.5")
+      foreach(WARNING_FLAG
+          -Wjump-misses-init
+          -Wunsuffixed-float-constants)
+        set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.6 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 4.6)
+      message("-- Add warning flags implemented in gcc 4.6")
+      foreach(WARNING_FLAG
+          -Wdouble-promotion
+          -Wsuggest-attribute=const
+          -Wsuggest-attribute=noreturn
+          -Wsuggest-attribute=pure)
+        set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.7 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 4.7)
+      message("-- Add warning flags implemented in gcc 4.7")
+      foreach(WARNING_FLAG
+          -Wno-return-local-addr
+          -Wvector-operation-performance)
+        set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.8 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 4.8)
+      message("-- Add warning flags implemented in gcc 4.8")
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wsuggest-attribute=format")
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 5.1 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 5.1)
+      message("-- Add warning flags implemented in gcc 5.1")
+      foreach(WARNING_FLAG
+          -Wsuggest-final-methods
+          -Wsuggest-final-types)
+        set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0)
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wabi")
+    else()
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wabi=11")
+    endif()
+  elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    set(C_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 3.5 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 3.5)
+      message("-- Add warning flags implemented in clang 3.5")
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wc++14-compat")
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 3.8 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 3.8)
+      message("-- Add warning flags implemented in clang 3.8")
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wdouble-promotion")
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 5.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 5.0)
+      message("-- Add warning flags implemented in clang 5.0")
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wzero-as-null-pointer-constant")
+    endif()
+  endif()
 
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CXX_WARNING_FLAGS "${GNU_COMMON_WARNING_FLAGS}")
+    foreach(WARNING_FLAG
+        -Weffc++
+        -Woverloaded-virtual
+        -Wsign-promo
+        -Wstrict-null-sentinel)
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+    endforeach(WARNING_FLAG)
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.6 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.6)
+      message("-- Add warning flags implemented in g++ 4.6")
+      foreach(WARNING_FLAG
+          -Wdouble-promotion
+          -Wsuggest-attribute=const
+          -Wsuggest-attribute=noreturn
+          -Wsuggest-attribute=pure)
+        set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach()
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.7 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.7)
+      message("-- Add warning flags implemented in g++ 4.7")
+      foreach(WARNING_FLAG
+          -Wvector-operation-performance
+          -Wno-return-local-addr
+          -Wc++11-compat
+          -Wzero-as-null-pointer-constant)
+        set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.8)
+      message("-- Add warning flags implemented in g++ 4.8")
+      foreach(WARNING_FLAG
+          -Wsuggest-attribute=format
+          -Wuseless-cast)
+        set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.1 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 5.1)
+      message("-- Add warning flags implemented in g++ 5.1")
+      foreach(WARNING_FLAG
+          -Wsuggest-final-methods
+          -Wsuggest-final-types
+          -Wsuggest-override
+          -Wc++14-compat)
+        set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wabi")
+    else()
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wabi=11")
+    endif()
+  else()
+    set(CXX_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 3.5 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 3.5)
+      message("-- Add warning flags implemented in clang++ 3.5")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wc++14-compat")
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 3.8 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 3.8)
+      message("-- Add warning flags implemented in clang++ 3.8")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wdouble-promotion")
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 5.0)
+      message("-- Add warning flags implemented in clang++ 5.0")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wzero-as-null-pointer-constant")
+    endif()
+  endif()
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_WARNING_FLAGS} ${C_WARNING_FLAGS}")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3 -O0 -pg -ftrapv -fstack-protector-all")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -mtune=native -march=native")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3 -Og -pg")
+  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -mtune=native -march=native")
+
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_WARNING_FLAGS} ${CXX_WARNING_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -pg -ftrapv -fstack-protector-all")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -mtune=native -march=native -s")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -mtune=native -march=native")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g3 -Og -pg")
-  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Os -s -mtune=native -march=native")
+  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Os -mtune=native -march=native")
 
-  set(CMAKE_INSTALL_PREFIX "/usr/local/")
-
-  if (CMAKE_BUILD_TYPE MATCHES Debug)
+  if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG)
   endif()
+
+  if(CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQUAL MinSizeRel)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
+  endif()
+
+  set(CMAKE_INSTALL_PREFIX "/usr/local/")
 
   install(TARGETS main
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib/static)
+
+  add_custom_target(uninstall xargs rm < install_manifest.txt)
 endif()
 
-if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
-  add_definitions(-DNDEBUG)
-endif()
-
-# tests
 if(ENABLE_TESTING)
   enable_testing()
   include(cmake/gtest.cmake)
@@ -117,18 +308,24 @@ if(ENABLE_TESTING)
 endif()
 
 
-# Version Requirements
-# if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#   # require at least gcc 4.8
-#   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
-#     message(FATAL_ERROR "GCC version must be at least 4.8!")
-#   endif()
-# elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-#   # require at least clang 3.2
-#   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.2)
-#     message(FATAL_ERROR "Clang version must be at least 3.2!")
-#   endif()
-# else()
-#   message(WARNING "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
-# endif()
+message(STATUS "Variables")
 
+message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+message(STATUS "CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message(STATUS "CMAKE_CONFIGURATION_TYPES: ${CMAKE_CONFIGURATION_TYPES}")
+message(STATUS "CMAKE_COMPILER_IS_GNUCC: ${CMAKE_COMPILER_IS_GNUCC}")
+message(STATUS "CMAKE_COMPILER_IS_GNUCXX: ${CMAKE_COMPILER_IS_GNUCXX}")
+
+message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message(STATUS "CMAKE_C_FLAGS_DEBUG: ${CMAKE_C_FLAGS_DEBUG}")
+message(STATUS "CMAKE_C_FLAGS_RELEASE: ${CMAKE_C_FLAGS_RELEASE}")
+message(STATUS "CMAKE_C_FLAGS_RELWITHDEBINFO: ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+message(STATUS "CMAKE_C_FLAGS_MINSIZEREL: ${CMAKE_C_FLAGS_MINSIZEREL}")
+
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "CMAKE_CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
+message(STATUS "CMAKE_CXX_FLAGS_RELWITHDEBINFO: ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+message(STATUS "CMAKE_CXX_FLAGS_MINSIZEREL: ${CMAKE_CXX_FLAGS_MINSIZEREL}")
