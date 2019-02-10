@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION <%= executable('cmake') ? split(systemlist('cmake --version')[0], ' ')[2] : '3.1' %>)
-project(CMakeProject)
+project(CMakeProject C CXX)
 
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -10,33 +13,35 @@ set(DEFAULT_BUILD_TYPE "Release")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 # Version Requirements
-# if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
-#     message(FATAL_ERROR "GCC version must be at least 4.4!")
-#   endif()
-# elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-#   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.1)
-#     message(FATAL_ERROR "Clang version must be at least 3.1!")
-#   endif()
-# else()
-#   message(WARNING "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
-# endif()
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
+    message(FATAL_ERROR "GCC version must be at least 4.4!")
+  endif()
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.1)
+    message(FATAL_ERROR "Clang version must be at least 3.1!")
+  endif()
+endif()
 
 
 add_executable(<+CURSOR+>)
+
+# include_directories(${CMAKE_SOURCE_DIR})
+
 # find_package(Threads REQUIRED)
-# target_link_libraries(main Threads::Threads)
+# target_link_libraries(main m Threads::Threads)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
   add_definitions(-DNDEBUG)
 endif()
 
+
 if(MSVC)
+  set(CMAKE_USE_RELATIVE_PATHS "ON")
   if(CMAKE_C_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
   else()
@@ -81,32 +86,6 @@ else()
   foreach(WARNING_FLAG
       -Wall
       -Wextra
-      -Wcast-align
-      -Wcast-qual
-      -Wconversion
-      -Wdisabled-optimization
-      -Wfloat-equal
-      -Wformat=2
-      -Winit-self
-      -Winline
-      -Wlogical-op
-      -Wmissing-declarations
-      -Wpointer-arith
-      -Wredundant-decls
-      -Wstrict-aliasing=2
-      -Wswitch-enum
-      -Wundef
-      -Wunsafe-loop-optimizations
-      -Wunreachable-code
-      -Wwrite-strings
-      -Wno-unknown-pragmas
-      -pedantic)
-    set(GNU_COMMON_WARNING_FLAGS "${GNU_COMMON_WARNING_FLAGS} ${WARNING_FLAG}")
-  endforeach(WARNING_FLAG)
-
-  foreach(WARNING_FLAG
-      -Wall
-      -Wextra
       -Wabi
       -Wcast-align
       -Wcast-qual
@@ -116,24 +95,21 @@ else()
       -Wformat=2
       -Winit-self
       -Winline
+      -Winvalid-pch
       -Wmissing-declarations
       -Wpointer-arith
       -Wredundant-decls
+      -Wstack-protector
       -Wstrict-aliasing=2
       -Wswitch-enum
-      -Wundef
+      -Wunknown-pragmas
       -Wunreachable-code
       -Wwrite-strings
-      -pedantic
-      -Wc++-compat
-      -Wbad-function-cast
-      -Wmissing-prototypes
-      -Wc++11-compat
-      -Weffc++
-      -Woverloaded-virtual
-      -Wsign-promo)
-    set(CLANG_COMMON_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS} ${WARNING_FLAG}")
-  endforeach(WARNING_FLAG)
+      -pedantic)
+    set(GNU_CLANG_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} ${WARNING_FLAG}")
+  endforeach()
+  set(GNU_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} -Wlogical-op -Wunsafe-loop-optimizations")
+  set(CLANG_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} -Wsign-promo")
 
   if(CMAKE_COMPILER_IS_GNUCC)
     set(C_WARNING_FLAGS "${GNU_COMMON_WARNING_FLAGS}")
@@ -141,9 +117,11 @@ else()
         -Wc++-compat
         -Wbad-function-cast
         -Wmissing-prototypes
-        -Wunsuffixed-float-constants)
+        -Wold-style-definition
+        -Wstrict-prototypes)
       set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
     endforeach(WARNING_FLAG)
+
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 4.5 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 4.5)
       message("-- Add warning flags implemented in gcc 4.5")
       foreach(WARNING_FLAG
@@ -158,7 +136,8 @@ else()
           -Wdouble-promotion
           -Wsuggest-attribute=const
           -Wsuggest-attribute=noreturn
-          -Wsuggest-attribute=pure)
+          -Wsuggest-attribute=pure
+          -Wtrampolines)
         set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach(WARNING_FLAG)
     endif()
@@ -177,18 +156,34 @@ else()
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 5.1 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 5.1)
       message("-- Add warning flags implemented in gcc 5.1")
       foreach(WARNING_FLAG
+          -Wformat-signedness
           -Wsuggest-final-methods
           -Wsuggest-final-types)
         set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach(WARNING_FLAG)
     endif()
-    if(CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0)
-      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wabi")
-    else()
-      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wabi=11")
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 6.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 6.0)
+      message("-- Add warning flags implemented in gcc 6.0")
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wduplicated-cond")
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 7.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 7.0)
+      message("-- Add warning flags implemented in gcc 7.0")
+      string(REGEX REPLACE "-Wabi" "-Wabi=11" C_WARNING_FLAGS "${C_WARNING_FLAGS}")
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wduplicated-branches")
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 8.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 8.0)
+      message("-- Add warning flags implemented in gcc 8.0")
+      string(REGEX REPLACE "-Wcast-align" "-Wcast-align=strict" C_WARNING_FLAGS "${C_WARNING_FLAGS}")
     endif()
   elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     set(C_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
+    foreach(WARNING_FLAG
+        -Wc++-compat
+        -Wbad-function-cast
+        -Wmissing-prototypes)
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+    endforeach(WARNING_FLAG)
+
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 3.5 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 3.5)
       message("-- Add warning flags implemented in clang 3.5")
       set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wc++14-compat")
@@ -207,27 +202,34 @@ else()
     set(CXX_WARNING_FLAGS "${GNU_COMMON_WARNING_FLAGS}")
     foreach(WARNING_FLAG
         -Weffc++
+        -Wnon-virtual-dtor
+        -Wold-style-cast
         -Woverloaded-virtual
+        -Wreorder
         -Wsign-promo
         -Wstrict-null-sentinel)
       set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
     endforeach(WARNING_FLAG)
+
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.6 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.6)
       message("-- Add warning flags implemented in g++ 4.6")
       foreach(WARNING_FLAG
           -Wdouble-promotion
+          -Wnoexcept
           -Wsuggest-attribute=const
           -Wsuggest-attribute=noreturn
-          -Wsuggest-attribute=pure)
+          -Wsuggest-attribute=pure
+          -Wtrampolines)
         set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach()
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.7 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.7)
       message("-- Add warning flags implemented in g++ 4.7")
       foreach(WARNING_FLAG
+          -Wc++11-compat
+          -Wdelete-non-virtual-dtor
           -Wvector-operation-performance
           -Wno-return-local-addr
-          -Wc++11-compat
           -Wzero-as-null-pointer-constant)
         set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach(WARNING_FLAG)
@@ -240,23 +242,47 @@ else()
         set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach(WARNING_FLAG)
     endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.9 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.9)
+      message("-- Add warning flags implemented in g++ 4.9")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wconditionally-supported")
+    endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.1 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 5.1)
       message("-- Add warning flags implemented in g++ 5.1")
       foreach(WARNING_FLAG
+          -Wc++14-compat
+          -Wformat-signedness
           -Wsuggest-final-methods
           -Wsuggest-final-types
-          -Wsuggest-override
-          -Wc++14-compat)
+          -Wsuggest-override)
         set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach(WARNING_FLAG)
     endif()
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
-      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wabi")
-    else()
-      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wabi=11")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 6.0)
+      message("-- Add warning flags implemented in g++ 6.0")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wduplicated-cond")
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 7.0)
+      message("-- Add warning flags implemented in g++ 7.0")
+      string(REGEX REPLACE "-Wabi" "-Wabi=11" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wduplicated-branches")
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 8.0)
+      message("-- Add warning flags implemented in g++ 8.0")
+      string(REGEX REPLACE "-Wcast-align" "-Wcast-align=strict" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
     endif()
   else()
     set(CXX_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
+    foreach(WARNING_FLAG
+        -Wc++11-compat
+        -Weffc++
+        -Wdelete-non-virtual-dtor
+        -Wnon-virtual-dtor
+        -Wold-style-cast
+        -Woverloaded-virtual
+        -Wreorder)
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+    endforeach(WARNING_FLAG)
+
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 3.5 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 3.5)
       message("-- Add warning flags implemented in clang++ 3.5")
       set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wc++14-compat")
@@ -301,10 +327,20 @@ else()
   add_custom_target(uninstall xargs rm < install_manifest.txt)
 endif()
 
+
+string(REGEX REPLACE "^ +" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+string(REGEX REPLACE "^ +" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+
 if(ENABLE_TESTING)
   enable_testing()
   include(cmake/gtest.cmake)
   add_subdirectory(test)
+endif()
+
+if(ENABLE_DOXYGEN)
+  include(Doxygen/doxygen.cmake)
+  add_doxygen(main)
 endif()
 
 
