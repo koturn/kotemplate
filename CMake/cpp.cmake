@@ -169,7 +169,11 @@ else()
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 7.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 7.0)
       message("-- Add warning flags implemented in gcc 7.0")
       string(REGEX REPLACE "-Wabi" "-Wabi=11" C_WARNING_FLAGS "${C_WARNING_FLAGS}")
-      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wduplicated-branches")
+      foreach(WARNING_FLAG
+          -Wduplicated-branches
+          -Wshadow-local)
+        set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
     endif()
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 8.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 8.0)
       message("-- Add warning flags implemented in gcc 8.0")
@@ -202,6 +206,7 @@ else()
     set(CXX_WARNING_FLAGS "${GNU_COMMON_WARNING_FLAGS}")
     foreach(WARNING_FLAG
         -Weffc++
+        -Wctor-dtor-privacy
         -Wnon-virtual-dtor
         -Wold-style-cast
         -Woverloaded-virtual
@@ -211,6 +216,10 @@ else()
       set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
     endforeach(WARNING_FLAG)
 
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.3 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.3)
+      message("-- Add warning flags implemented in g++ 4.3")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wc++0x-compat")
+    endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.6 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.6)
       message("-- Add warning flags implemented in g++ 4.6")
       foreach(WARNING_FLAG
@@ -225,8 +234,8 @@ else()
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.7 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.7)
       message("-- Add warning flags implemented in g++ 4.7")
+      string(REGEX REPLACE "-Wc\\+\\+0x-compat" "-Wc++11-compat" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
       foreach(WARNING_FLAG
-          -Wc++11-compat
           -Wdelete-non-virtual-dtor
           -Wvector-operation-performance
           -Wno-return-local-addr
@@ -264,7 +273,12 @@ else()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 7.0)
       message("-- Add warning flags implemented in g++ 7.0")
       string(REGEX REPLACE "-Wabi" "-Wabi=11" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
-      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wduplicated-branches")
+      foreach(WARNING_FLAG
+          -Wc++17-compat
+          -Wduplicated-branches
+          -Wshadow-local)
+        set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 8.0)
       message("-- Add warning flags implemented in g++ 8.0")
@@ -275,6 +289,7 @@ else()
     foreach(WARNING_FLAG
         -Wc++11-compat
         -Weffc++
+        -Wctor-dtor-privacy
         -Wdelete-non-virtual-dtor
         -Wnon-virtual-dtor
         -Wold-style-cast
@@ -289,10 +304,15 @@ else()
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 3.8 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 3.8)
       message("-- Add warning flags implemented in clang++ 3.8")
-      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wdouble-promotion")
+      foreach(WARNING_FLAG
+          -Wc++1z-compat
+          -Wdouble-promotion)
+        set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 5.0)
       message("-- Add warning flags implemented in clang++ 5.0")
+      string(REGEX REPLACE "-Wc\\+\\+1z-compat" "-Wc++17-compat" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
       set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wzero-as-null-pointer-constant")
     endif()
   endif()
@@ -332,12 +352,14 @@ string(REGEX REPLACE "^ +" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 string(REGEX REPLACE "^ +" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 
+option(ENABLE_TESTING "Enable testing with Google Test." OFF)
 if(ENABLE_TESTING)
   enable_testing()
   include(cmake/gtest.cmake)
   add_subdirectory(test)
 endif()
 
+option(ENABLE_DOXYGEN "Enable to generate document with Doxygen." OFF)
 if(ENABLE_DOXYGEN)
   include(Doxygen/doxygen.cmake)
   add_doxygen(main)
