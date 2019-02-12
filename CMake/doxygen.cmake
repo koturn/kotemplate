@@ -10,7 +10,7 @@ function(add_doxygen targetname)
     return()
   endif()
 
-  set(doxydir ${CMAKE_SOURCE_DIR}/Doxygen)
+  set(doxydir ${CMAKE_SOURCE_DIR}/cmake)
   set(outputdir ${CMAKE_BINARY_DIR}/DoxyDoc)
 
   get_property(sourcefiles
@@ -78,7 +78,7 @@ function(add_doxygen targetname)
   add_custom_command(
     OUTPUT  ${outputdir}/${targetname}/Doxyfile
     COMMAND ${CMAKE_COMMAND}
-    -D "DOXYGEN_TEMPLATE=${doxydir}/Doxyfile.in"
+    -D "DOXYGEN_TEMPLATE=${doxydir}/templates/Doxyfile.in"
     -D "DOXY_PROJECT_INPUT=${source_spaces} ${header_spaces}"
     -D "DOXY_PROJECT_INCLUDE_DIR=${dir_spaces}"
     -D "DOXY_PROJECT_PREDEFINED=${predef_spaces}"
@@ -86,7 +86,7 @@ function(add_doxygen targetname)
     -D "DOXY_DOCUMENTATION_OUTPUT_PATH=${outputdir}"
     -D "DOXY_PROJECT_NAME=${targetname}"
     -P "${doxydir}/doxygen-script.cmake"
-    DEPENDS ${doxydir}/Doxyfile.in
+    DEPENDS ${doxydir}/templates/Doxyfile.in
     ${outputdir}/${targetname}
     WORKING_DIRECTORY
     ${outputdir}/${targetname}

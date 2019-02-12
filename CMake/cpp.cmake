@@ -361,7 +361,7 @@ endif()
 
 option(ENABLE_DOXYGEN "Enable to generate document with Doxygen." OFF)
 if(ENABLE_DOXYGEN)
-  include(Doxygen/doxygen.cmake)
+  include(cmake/doxygen.cmake)
   add_doxygen(main)
 endif()
 
