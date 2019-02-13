@@ -28,7 +28,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 
-add_executable(<+CURSOR+>)
+file(GLOB SRCS *.c *.cpp *.cxx *.cc)
+add_executable(<+CURSOR+>
+  ${SRCS})
 
 # include_directories(${CMAKE_SOURCE_DIR})
 
@@ -94,21 +96,32 @@ else()
       -Wfloat-equal
       -Wformat=2
       -Winit-self
-      -Winline
       -Winvalid-pch
       -Wmissing-declarations
       -Wpointer-arith
       -Wredundant-decls
       -Wstack-protector
       -Wstrict-aliasing=2
+      -Wstrict-overflow=5
       -Wswitch-enum
+      -Wswitch-default
       -Wunknown-pragmas
       -Wunreachable-code
       -Wwrite-strings
       -pedantic)
     set(GNU_CLANG_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} ${WARNING_FLAG}")
   endforeach()
-  set(GNU_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} -Wlogical-op -Wunsafe-loop-optimizations")
+
+  option(ENABLE_ADDITIONAL_WARNING_FLAGS "Enable additional warning flags." OFF)
+  if(ENABLE_ADDITIONAL_WARNING_FLAGS)
+    set(GNU_CLANG_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} -Winline -Wsign-conversion")
+  endif()
+
+  set(GNU_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} -Wlogical-op")
+  if(ENABLE_ADDITIONAL_WARNING_FLAGS)
+    set(GNU_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} -Wunsafe-loop-optimizations")
+  endif()
+
   set(CLANG_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} -Wsign-promo")
 
   if(CMAKE_COMPILER_IS_GNUCC)
@@ -178,6 +191,7 @@ else()
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 8.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 8.0)
       message("-- Add warning flags implemented in gcc 8.0")
       string(REGEX REPLACE "-Wcast-align" "-Wcast-align=strict" C_WARNING_FLAGS "${C_WARNING_FLAGS}")
+      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wsuggest-attribute=malloc")
     endif()
   elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     set(C_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
@@ -283,6 +297,7 @@ else()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 8.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 8.0)
       message("-- Add warning flags implemented in g++ 8.0")
       string(REGEX REPLACE "-Wcast-align" "-Wcast-align=strict" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
+      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wsuggest-attribute=malloc")
     endif()
   else()
     set(CXX_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
