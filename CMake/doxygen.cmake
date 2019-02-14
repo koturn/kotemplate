@@ -25,17 +25,17 @@ function(add_doxygen targetname)
     else()
       list(APPEND abs_sourcefiles "${CMAKE_SOURCE_DIR}/${source}")
     endif()
-  endforeach()
+  endforeach(source)
 
   foreach(source ${abs_sourcefiles})
     set(source_spaces "${source_spaces} ${source}")
-  endforeach()
+  endforeach(source)
 
   # Treat source file directory as include path.
   foreach(source ${abs_sourcefiles})
     get_filename_component(source_dir ${source} DIRECTORY)
     set(source_dirs ${source_dirs} ${source_dir})
-  endforeach()
+  endforeach(source)
 
   # Convert absolute path list to space-separated text.
   get_property(includedirs
@@ -47,14 +47,14 @@ function(add_doxygen targetname)
 
   foreach(dir ${includedirs})
     set(dir_spaces "${dir_spaces} ${dir}")
-  endforeach()
+  endforeach(dir)
 
   foreach(dir ${includedirs})
     file(GLOB headers ${dir}/*.h ${dir}/*.hpp ${dir}/*.hxx ${dir}/*.hh ${dir}/*.inl)
     foreach(h ${headers})
       set(header_spaces "${header_spaces} ${h}")
-    endforeach()
-  endforeach()
+    endforeach(h)
+  endforeach(dir)
 
   # Convert compile time macro to space-separated text.
   get_property(definitions
@@ -62,7 +62,7 @@ function(add_doxygen targetname)
     PROPERTY COMPILE_DEFINITIONS)
   foreach(def ${definitions})
     set(predef_spaces "${predef_spaces} ${def}")
-  endforeach()
+  endforeach(def)
 
   # Create output directory
   add_custom_command(

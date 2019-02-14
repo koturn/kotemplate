@@ -110,7 +110,7 @@ else()
       -Wwrite-strings
       -pedantic)
     set(GNU_CLANG_COMMON_WARNING_FLAGS "${GNU_CLANG_COMMON_WARNING_FLAGS} ${WARNING_FLAG}")
-  endforeach()
+  endforeach(WARNING_FLAG)
 
   option(ENABLE_ADDITIONAL_WARNING_FLAGS "Enable additional warning flags." OFF)
   if(ENABLE_ADDITIONAL_WARNING_FLAGS)
@@ -130,6 +130,7 @@ else()
         -Wc++-compat
         -Wbad-function-cast
         -Wmissing-prototypes
+        -Wnested-externs
         -Wold-style-definition
         -Wstrict-prototypes)
       set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
@@ -177,14 +178,23 @@ else()
     endif()
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 6.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 6.0)
       message("-- Add warning flags implemented in gcc 6.0")
-      set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wduplicated-cond")
+      foreach(WARNING_FLAG
+          -Wduplicated-cond
+          -Wshift-overflow=2)
+        set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
     endif()
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 7.0 OR CMAKE_C_COMPILER_VERSION VERSION_EQUAL 7.0)
       message("-- Add warning flags implemented in gcc 7.0")
       string(REGEX REPLACE "-Wabi" "-Wabi=11" C_WARNING_FLAGS "${C_WARNING_FLAGS}")
       foreach(WARNING_FLAG
+          -Walloc-zero
           -Wduplicated-branches
-          -Wshadow-local)
+          -Wformat-overflow=2
+          -Wformat-truncation=2
+          -Wrestrict
+          -Wshadow-local
+          -Wstringop-overflow=4)
         set(C_WARNING_FLAGS "${C_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach(WARNING_FLAG)
     endif()
@@ -244,7 +254,7 @@ else()
           -Wsuggest-attribute=pure
           -Wtrampolines)
         set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
-      endforeach()
+      endforeach(WARNING_FLAG)
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.7 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.7)
       message("-- Add warning flags implemented in g++ 4.7")
@@ -282,15 +292,26 @@ else()
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 6.0)
       message("-- Add warning flags implemented in g++ 6.0")
-      set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wduplicated-cond")
+      foreach(WARNING_FLAG
+          -Wduplicated-cond
+          -Wplacement-new=2
+          -Wshift-overflow=2)
+        set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
+      endforeach(WARNING_FLAG)
     endif()
     if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 7.0)
       message("-- Add warning flags implemented in g++ 7.0")
       string(REGEX REPLACE "-Wabi" "-Wabi=11" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
       foreach(WARNING_FLAG
           -Wc++17-compat
+          -Walloc-zero
           -Wduplicated-branches
-          -Wshadow-local)
+          -Wformat-overflow=2
+          -Wformat-truncation=2
+          -Wregister
+          -Wrestrict
+          -Wshadow-local
+          -Wstringop-overflow=4)
         set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} ${WARNING_FLAG}")
       endforeach(WARNING_FLAG)
     endif()
@@ -333,15 +354,15 @@ else()
   endif()
 
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_WARNING_FLAGS} ${C_WARNING_FLAGS}")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3 -O0 -pg -ftrapv -fstack-protector-all")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3 -O0 -ftrapv -fstack-protector-all")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -mtune=native -march=native")
-  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3 -Og -pg")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3 -Og")
   set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -mtune=native -march=native")
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_WARNING_FLAGS} ${CXX_WARNING_FLAGS}")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -pg -ftrapv -fstack-protector-all")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -ftrapv -fstack-protector-all")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -mtune=native -march=native")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g3 -Og -pg")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g3 -Og")
   set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Os -mtune=native -march=native")
 
   if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -402,3 +423,5 @@ message(STATUS "CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
 message(STATUS "CMAKE_CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
 message(STATUS "CMAKE_CXX_FLAGS_RELWITHDEBINFO: ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 message(STATUS "CMAKE_CXX_FLAGS_MINSIZEREL: ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+
+message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
