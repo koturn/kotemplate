@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION <%= executable('cmake') ? split(systemlist('cmake --version')[0], ' ')[2] : '3.1' %>)
-project(CMakeProject C CXX)
+project(<+DIR+> C CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -29,7 +29,8 @@ endif()
 
 
 file(GLOB SRCS *.c *.cpp *.cxx *.cc)
-add_executable(<+CURSOR+>
+add_executable(
+  main<+CURSOR+>
   ${SRCS})
 
 # include_directories(${CMAKE_SOURCE_DIR})
@@ -37,53 +38,53 @@ add_executable(<+CURSOR+>
 # find_package(Threads REQUIRED)
 # target_link_libraries(main m Threads::Threads)
 
-if(NOT CMAKE_BUILD_TYPE MATCHES Debug)
-  add_definitions(-DNDEBUG)
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "i686.*|i386.*|x86.*")
+  set(SYSTEM_PROCESSOR_IS_X86 TRUE)
+endif()
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|x86_64.*|AMD64.*")
+  set(SYSTEM_PROCESSOR_IS_X64 TRUE)
 endif()
 
 
 if(MSVC)
-  set(CMAKE_USE_RELATIVE_PATHS "ON")
-  if(CMAKE_C_FLAGS MATCHES "/W[0-4]")
-    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
-  endif()
-  if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-    string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-  endif()
-  add_definitions(
-    -DWIN32_LEAN_AND_MEAN
-    -DNOMINMAX
-    -D_USE_MATH_DEFINES
-    -D_CRT_NONSTDC_NO_WARNINGS
-    -D_CRT_SECURE_NO_WARNINGS)
+  set(USE_RELATIVE_PATHS ON)
 
-  foreach(FLAG_VAR
-      CMAKE_C_FLAGS
-      CMAKE_C_FLAGS_DEBUG
-      CMAKE_C_FLAGS_RELEASE
-      CMAKE_C_FLAGS_MINSIZEREL
-      CMAKE_C_FLAGS_RELWITHDEBINFO
-      CMAKE_CXX_FLAGS
-      CMAKE_CXX_FLAGS_DEBUG
-      CMAKE_CXX_FLAGS_RELEASE
-      CMAKE_CXX_FLAGS_MINSIZEREL
-      CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-    string(REGEX REPLACE "/RTC[^ ]*" "" ${FLAG_VAR} "${${FLAG_VAR}}")
-  endforeach(FLAG_VAR)
+  foreach(TARGET_FLAG
+      C_FLAGS
+      C_FLAGS_DEBUG
+      C_FLAGS_RELEASE
+      C_FLAGS_MINSIZEREL
+      C_FLAGS_RELWITHDEBINFO
+      CXX_FLAGS
+      CXX_FLAGS_DEBUG
+      CXX_FLAGS_RELEASE
+      CXX_FLAGS_MINSIZEREL
+      CXX_FLAGS_RELWITHDEBINFO)
+    string(REGEX REPLACE "/RTC[^ ]*" "" ${TARGET_FLAG} "${CMAKE_${TARGET_FLAG}}")
+  endforeach(TARGET_FLAG)
 
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Oi /Ot /Ox /Oy")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Oi /Ot /Ox /Oy /GL")
-  # set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} /Os")
+  foreach(
+      TARGET_FLAG
+      C_FLAGS
+      CXX_FLAGS)
+    if(C_FLAGS MATCHES "/W[0-4]")
+      string(REGEX REPLACE "/W[0-4]" "/W4" ${TARGET_FLAG} "${${TARGET_FLAG}}")
+    else()
+      set("${TARGET_FLAG}" "${${TARGET_FLAG}} /W4")
+    endif()
+  endforeach()
 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Oi /Ot /Ox /Oy")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Oi /Ot /Ox /Oy /GL")
-  # set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /Os")
+  set(DEFLIST "-DWIN32_LEAN_AND_MEAN;-DNOMINMAX;-D_USE_MATH_DEFINES;-D_CRT_NONSTDC_NO_WARNINGS;-D_CRT_SECURE_NO_WARNINGS")
+
+  set(C_FLAGS_DEBUG "${C_FLAGS_DEBUG} /Oi /Oy")
+  set(C_FLAGS_RELEASE "${C_FLAGS_RELEASE} /Ob2 /Oi /Ot /Ox /Oy /GL")
+  set(C_FLAGS_MINSIZEREL "${C_FLAGS_MINSIZEREL} /Os")
+
+  set(CXX_FLAGS_DEBUG "${CXX_FLAGS_DEBUG} /Oi /Oy")
+  set(CXX_FLAGS_RELEASE "${CXX_FLAGS_RELEASE} /Ob2 /Oi /Ot /Ox /Oy /GL")
+  set(CXX_FLAGS_MINSIZEREL "${CXX_FLAGS_MINSIZEREL} /Os")
+
+  set(EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
 else()
   foreach(WARNING_FLAG
       -Wall
@@ -203,6 +204,20 @@ else()
       string(REGEX REPLACE "-Wcast-align" "-Wcast-align=strict" C_WARNING_FLAGS "${C_WARNING_FLAGS}")
       set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wsuggest-attribute=malloc")
     endif()
+
+    set(C_FLAGS "${CMAKE_C_FLAGS} -pipe ${C_WARNING_FLAGS}")
+    set(C_FLAGS_DEBUG "-g3 -O0 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG")
+    set(C_FLAGS_RELEASE "-O3 -DNDEBUG")
+    set(C_FLAGS_MINSIZEREL "-s -DNDEBUG")
+    if(SYSTEM_PROCESSOR_IS_X86 OR SYSTEM_PROCESSOR_IS_X64)
+      set(C_FLAGS_RELEASE "${C_FLAGS_RELEASE} -mtune=native -march=native")
+      set(C_FLAGS_MINSIZEREL "${C_FLAGS_MINSIZEREL} -mtune=native -march=native")
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_LESS 4.8)
+      set(C_FLAGS_RELWITHDEBINFO "-g -O2 -DNDEBUG")
+    else()
+      set(C_FLAGS_RELWITHDEBINFO "-g -Og -DNDEBUG")
+    endif()
   elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     set(C_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
     foreach(WARNING_FLAG
@@ -224,6 +239,26 @@ else()
       message("-- Add warning flags implemented in clang 5.0")
       set(C_WARNING_FLAGS "${C_WARNING_FLAGS} -Wzero-as-null-pointer-constant")
     endif()
+
+    set(C_FLAGS "${CMAKE_C_FLAGS} -pipe ${C_WARNING_FLAGS}")
+    set(C_FLAGS_DEBUG "-g3 -O0 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG")
+    set(C_FLAGS_RELEASE "-O3 -DNDEBUG")
+    set(C_FLAGS_MINSIZEREL "-s -DNDEBUG")
+    if(SYSTEM_PROCESSOR_IS_X86 OR SYSTEM_PROCESSOR_IS_X64)
+      set(C_FLAGS_RELEASE "${C_FLAGS_RELEASE} -mtune=native -march=native")
+      set(C_FLAGS_MINSIZEREL "${C_FLAGS_MINSIZEREL} -mtune=native -march=native")
+    endif()
+    if(CMAKE_C_COMPILER_VERSION VERSION_LESS 4.0)
+      set(C_FLAGS_RELWITHDEBINFO "-g -O2 -DNDEBUG")
+    else()
+      set(C_FLAGS_RELWITHDEBINFO "-g -Og -DNDEBUG")
+    endif()
+  else()
+    set(C_FLAGS "${CMAKE_C_FLAGS}")
+    set(C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+    set(C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+    set(C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL}")
+    set(C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
   endif()
 
   if(CMAKE_COMPILER_IS_GNUCXX)
@@ -320,7 +355,21 @@ else()
       string(REGEX REPLACE "-Wcast-align" "-Wcast-align=strict" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
       set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wsuggest-attribute=malloc")
     endif()
-  else()
+
+    set(CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe ${CXX_WARNING_FLAGS}")
+    set(CXX_FLAGS_DEBUG "-g3 -O0 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG")
+    set(CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+    set(CXX_FLAGS_MINSIZEREL "-s -DNDEBUG")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8)
+      set(CXX_FLAGS_RELWITHDEBINFO "-g -O2 -DNDEBUG")
+    else()
+      set(CXX_FLAGS_RELWITHDEBINFO "-g -Og -DNDEBUG")
+    endif()
+    if(SYSTEM_PROCESSOR_IS_X86 OR SYSTEM_PROCESSOR_IS_X64)
+      set(CXX_FLAGS_RELEASE "${CXX_FLAGS_RELEASE} -mtune=native -march=native")
+      set(CXX_FLAGS_MINSIZEREL "${CXX_FLAGS_MINSIZEREL} -mtune=native -march=native")
+    endif()
+  elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     set(CXX_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
     foreach(WARNING_FLAG
         -Wc++11-compat
@@ -351,27 +400,30 @@ else()
       string(REGEX REPLACE "-Wc\\+\\+1z-compat" "-Wc++17-compat" CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS}")
       set(CXX_WARNING_FLAGS "${CXX_WARNING_FLAGS} -Wzero-as-null-pointer-constant")
     endif()
+
+    set(CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe ${CXX_WARNING_FLAGS}")
+    set(CXX_FLAGS_DEBUG "-g3 -O0 -ftrapv -fstack-protector-all -D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG")
+    set(CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+    set(CXX_FLAGS_MINSIZEREL "-s -DNDEBUG")
+    if(SYSTEM_PROCESSOR_IS_X86 OR SYSTEM_PROCESSOR_IS_X64)
+      set(CXX_FLAGS_RELEASE "${CXX_FLAGS_RELEASE} -mtune=native -march=native")
+      set(CXX_FLAGS_MINSIZEREL "${CXX_FLAGS_MINSIZEREL} -mtune=native -march=native")
+    endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.0)
+      set(CXX_FLAGS_RELWITHDEBINFO "-g -O2 -DNDEBUG")
+    else()
+      set(CXX_FLAGS_RELWITHDEBINFO "-g -Og -DNDEBUG")
+    endif()
+  else()
+    set(CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+    set(CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL}")
+    set(CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   endif()
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_WARNING_FLAGS} ${C_WARNING_FLAGS}")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g3 -O0 -ftrapv -fstack-protector-all")
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -mtune=native -march=native")
-  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g3 -Og")
-  set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -mtune=native -march=native")
-
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_WARNING_FLAGS} ${CXX_WARNING_FLAGS}")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -ftrapv -fstack-protector-all")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -mtune=native -march=native")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g3 -Og")
-  set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -Os -mtune=native -march=native")
-
-  set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")
-  set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")
-
-
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-D_FORTIFY_SOURCE=2 -D_GLIBCXX_DEBUG)
-  endif()
+  set(EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")
+  set(EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")
 
   install(TARGETS main
     RUNTIME DESTINATION bin
@@ -381,9 +433,30 @@ else()
   add_custom_target(uninstall xargs rm < install_manifest.txt)
 endif()
 
+if(DEFLIST)
+  foreach(DEF "${DEFLIST}")
+    add_definitions(${DEF})
+  endforeach(DEF)
+endif()
 
-string(REGEX REPLACE "^ +" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-string(REGEX REPLACE "^ +" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+foreach(TARGET_FLAG
+    C_FLAGS
+    C_FLAGS_DEBUG
+    C_FLAGS_RELEASE C_FLAGS_RELWITHDEBINFO
+    C_FLAGS_MINSIZEREL
+    CXX_FLAGS
+    CXX_FLAGS_DEBUG
+    CXX_FLAGS_RELEASE
+    CXX_FLAGS_RELWITHDEBINFO
+    CXX_FLAGS_MINSIZEREL
+    EXE_LINKER_FLAGS
+    EXE_LINKER_FLAGS_DEBUG
+    EXE_LINKER_FLAGS_RELEASE
+    EXE_LINKER_FLAGS_RELWITHDEBINFO
+    EXE_LINKER_FLAGS_MINSIZEREL)
+  string(REGEX REPLACE "^ +" "" "${TARGET_FLAG}" "${${TARGET_FLAG}}")
+  string(REGEX REPLACE "  +" " " "CMAKE_${TARGET_FLAG}" "${${TARGET_FLAG}}")
+endforeach(TARGET_FLAG)
 
 
 option(ENABLE_TESTING "Enable testing with Google Test." OFF)
@@ -404,17 +477,20 @@ message(STATUS "Variables")
 
 foreach(VARNAME
     CMAKE_SYSTEM_NAME
+    CMAKE_SYSTEM_PROCESSOR
     CMAKE_SOURCE_DIR
     CMAKE_BINARY_DIR
     CMAKE_BUILD_TYPE
     CMAKE_CONFIGURATION_TYPES
     CMAKE_COMPILER_IS_GNUCC
     CMAKE_COMPILER_IS_GNUCXX
+    CMAKE_C_COMPILER
     CMAKE_C_FLAGS
     CMAKE_C_FLAGS_DEBUG
     CMAKE_C_FLAGS_RELEASE
     CMAKE_C_FLAGS_RELWITHDEBINFO
     CMAKE_C_FLAGS_MINSIZEREL
+    CMAKE_CXX_COMPILER
     CMAKE_CXX_FLAGS
     CMAKE_CXX_FLAGS_DEBUG
     CMAKE_CXX_FLAGS_RELEASE
