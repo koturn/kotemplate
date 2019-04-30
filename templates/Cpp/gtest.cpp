@@ -1,4 +1,4 @@
-#if (defined(__GNUC__) && (__GNUC__ > (major) || __GNUC__ == (major) && __GNUC_MINOR__ >= (minor)))
+#if (defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 6))
 #  define <+FILE_CAPITAL+>_AVAILABLE_GCC_WARNING_PRAGMA
 #endif
 

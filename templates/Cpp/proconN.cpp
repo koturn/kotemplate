@@ -1,4 +1,10 @@
+#include <cstdint>
+#include <algorithm>
 #include <iostream>
+#include <numeric>
+#include <string>
+#include <utility>
+#include <vector>
 
 #if defined(__GNUC__) && !defined(__clang__)
 #  pragma GCC optimize("Ofast")
