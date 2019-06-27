@@ -16,12 +16,11 @@
 #endif  // <+FILE_CAPITAL+>_AVAILABLE_GCC_WARNING_PRAGMA
 
 
-#ifdef <+FILE_CAPITAL+>_AVAILABLE_GCC_WARNING_PRAGMA
-#  if __cplusplus >= 201103L
-#    pragma GCC diagnostic ignored "-Wsuggest-override"
-#    pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#  endif  // __cplusplus >= 201103L
-#endif  // <+FILE_CAPITAL+>_AVAILABLE_GCC_WARNING_PRAGMA
+#if defined(<+FILE_CAPITAL+>_AVAILABLE_GCC_WARNING_PRAGMA) \
+  && if __cplusplus >= 201103L
+#  pragma GCC diagnostic ignored "-Wsuggest-override"
+#  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif  // defined(<+FILE_CAPITAL+>_AVAILABLE_GCC_WARNING_PRAGMA) && __cplusplus >= 201103L
 
 
 
