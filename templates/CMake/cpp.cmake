@@ -9,14 +9,19 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(DEFAULT_BUILD_TYPE "Release")
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
-  set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+
+# C Compiler Version Requirements
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+  if(CMAKE_C_COMPILER_VERSION VERSION_LESS 4.4)
+    message(FATAL_ERROR "GCC version must be at least 4.4!")
+  endif()
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+  if(CMAKE_C_COMPILER_VERSION VERSION_LESS 3.1)
+    message(FATAL_ERROR "Clang version must be at least 3.1!")
+  endif()
 endif()
 
-# Version Requirements
+# C++ Compiler Version Requirements
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
     message(FATAL_ERROR "GCC version must be at least 4.4!")
@@ -25,6 +30,14 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.1)
     message(FATAL_ERROR "Clang version must be at least 3.1!")
   endif()
+endif()
+
+
+set(DEFAULT_BUILD_TYPE "Release")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
+  set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 
@@ -67,7 +80,7 @@ if(MSVC)
       TARGET_FLAG
       C_FLAGS
       CXX_FLAGS)
-    if(C_FLAGS MATCHES "/W[0-4]")
+    if(TARGET_FLAG MATCHES "/W[0-4]")
       string(REGEX REPLACE "/W[0-4]" "/W4" ${TARGET_FLAG} "${${TARGET_FLAG}}")
     else()
       set("${TARGET_FLAG}" "${${TARGET_FLAG}} /W4")
@@ -369,7 +382,7 @@ else()
       set(CXX_FLAGS_RELEASE "${CXX_FLAGS_RELEASE} -mtune=native -march=native")
       set(CXX_FLAGS_MINSIZEREL "${CXX_FLAGS_MINSIZEREL} -mtune=native -march=native")
     endif()
-  elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set(CXX_WARNING_FLAGS "${CLANG_COMMON_WARNING_FLAGS}")
     foreach(WARNING_FLAG
         -Wc++11-compat
