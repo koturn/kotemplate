@@ -1,8 +1,8 @@
 <+DIR+>
 <%= repeat('=', len('<+DIR+>')) %>
 
-[![Build Status](https://travis-ci.org/<+AUTHOR+>/<+DIR+>.png)](https://travis-ci.org/<+AUTHOR+>/<+DIR+>)
-[![Powered by vital.vim](https://img.shields.io/badge/powered%20by-vital.vim-80273f.svg)](https://github.com/vim-jp/vital.vim)
+[![Build Status](https://travis-ci.org/<+AUTHOR+>/<+DIR+>.png)](https://travis-ci.org/<+AUTHOR+>/<+DIR+> "Travis CI | <+AUTHOR+>/<+DIR+>")
+[![Powered by vital.vim](https://img.shields.io/badge/powered%20by-vital.vim-80273f.svg)](https://github.com/vim-jp/vital.vim "vim-jp/vital.vim")
 
 <+CURSOR+>
 
@@ -19,7 +19,7 @@
 
 ## Installation
 
-### With [dein.vim](https://github.com/Shougo/neobundle.vim)
+### With [dein.vim](https://github.com/Shougo/dein.vim "Shougo/dein.vim")
 
 Write following code to your `.vimrc` and execute `:call dein#install()` in
 your Vim.
@@ -40,7 +40,7 @@ call dein#add('<+AUTHOR+>/<+DIR+>', {
       \})
 ```
 
-### With [NeoBundle](https://github.com/Shougo/neobundle.vim)
+### With [NeoBundle](https://github.com/Shougo/neobundle.vim "Shougo/neobundle.vim")
 
 Write following code to your `.vimrc` and execute `:NeoBundleInstall` in your
 Vim.
@@ -67,7 +67,7 @@ NeoBundle '<+AUTHOR+>/<+DIR+>', {
       \}
 ```
 
-### With [Vundle](https://github.com/VundleVim/Vundle.vim)
+### With [Vundle](https://github.com/VundleVim/Vundle.vim "VundleVim/Vundle.vim")
 
 Write following code to your `.vimrc` and execute `:PluginInstall` in your Vim.
 
@@ -75,7 +75,7 @@ Write following code to your `.vimrc` and execute `:PluginInstall` in your Vim.
 Plugin '<+AUTHOR+>/<+DIR+>'
 ```
 
-### With [vim-plug](https://github.com/junegunn/vim-plug)
+### With [vim-plug](https://github.com/junegunn/vim-plug "junegunn/vim-plug")
 
 Write following code to your `.vimrc` and execute `:PlugInstall` in your Vim.
 
@@ -83,7 +83,7 @@ Write following code to your `.vimrc` and execute `:PlugInstall` in your Vim.
 Plug '<+AUTHOR+>/<+DIR+>'
 ```
 
-### With [vim-pathogen](https://github.com/tpope/vim-pathogen)
+### With [vim-pathogen](https://github.com/tpope/vim-pathogen "tpope/vim-pathogen")
 
 Clone this repository to the package directory of pathogen.
 
@@ -130,4 +130,4 @@ If you don't want to use plugin manager, put files and directories on
 
 ## LICENSE
 
-This software is released under the MIT License, see [LICENSE](LICENSE).
+This software is released under the MIT License, see [LICENSE](LICENSE "LICENSE").
