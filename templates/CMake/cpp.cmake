@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION <%= executable('cmake') ? split(systemlist('cmake --version')[0], ' ')[2] : '3.1' %>)
-project(<+DIR+> C CXX)
+project(<+DIR+>
+  VERSION "1.0.0.0"
+  LANGUAGES C CXX)
 
-set(BUILD_TARGET "main"<+CURSOR+>)
+set(BUILD_TARGET ${PROJECT_NAME}<+CURSOR+>)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
