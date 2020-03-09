@@ -1,5 +1,6 @@
 #include <winnt.h>
 #include <winver.h>
+#pragma code_page(65001)
 
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
