@@ -1,0 +1,54 @@
+#ifndef @CL_HPP_INCLUDE_GUARD_MACRO@
+#define @CL_HPP_INCLUDE_GUARD_MACRO@
+
+
+#cmakedefine CL_SILENCE_DEPRECATION
+#cmakedefine CL_HPP_ENABLE_EXCEPTIONS
+#cmakedefine CL_HPP_MINIMUM_OPENCL_VERSION @CL_HPP_MINIMUM_OPENCL_VERSION@
+#cmakedefine CL_HPP_TARGET_OPENCL_VERSION @CL_HPP_TARGET_OPENCL_VERSION@
+
+
+#if (defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#  define @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#endif
+#ifdef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Weffc++"
+#  pragma GCC diagnostic ignored "-Wcast-qual"
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#  pragma GCC diagnostic ignored "-Wsuggest-override"
+#  pragma GCC diagnostic ignored "-Wsuggest-final-methods"
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#  pragma GCC diagnostic ignored "-Wuseless-cast"
+#  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4100)
+#  pragma warning(disable: 4505)
+#endif  // _MSC_VER
+
+
+#include <CL/cl2.hpp>
+
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif  // _MSC_VER
+
+#ifdef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#  pragma GCC diagnostic pop
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#ifdef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#  undef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+
+
+#undef CL_SILENCE_DEPRECATION
+#undef CL_HPP_ENABLE_EXCEPTIONS
+#undef CL_HPP_MINIMUM_OPENCL_VERSION
+#undef CL_HPP_TARGET_OPENCL_VERSION
+
+
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@

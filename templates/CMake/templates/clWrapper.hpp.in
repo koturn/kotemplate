@@ -1,0 +1,57 @@
+#ifndef @CL_HPP_INCLUDE_GUARD_MACRO@
+#define @CL_HPP_INCLUDE_GUARD_MACRO@
+
+#ifdef __MSYS__
+#  include <alloca.h>
+#endif  // __MSYS__
+
+
+#cmakedefine CL_SILENCE_DEPRECATION
+#cmakedefine __CL_ENABLE_EXCEPTIONS
+
+#cmakedefine CL_USE_DEPRECATED_OPENCL_1_0_APIS
+#cmakedefine CL_USE_DEPRECATED_OPENCL_1_1_APIS
+#cmakedefine CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#cmakedefine CL_USE_DEPRECATED_OPENCL_2_0_APIS
+#cmakedefine CL_USE_DEPRECATED_OPENCL_2_1_APIS
+#cmakedefine CL_USE_DEPRECATED_OPENCL_2_2_APIS
+
+
+#if (defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#  define @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#endif
+#ifdef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Weffc++"
+#  pragma GCC diagnostic ignored "-Wcast-qual"
+#  pragma GCC diagnostic ignored "-Wconversion"
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#  pragma GCC diagnostic ignored "-Wsuggest-override"
+#  pragma GCC diagnostic ignored "-Wuseless-cast"
+#  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+
+
+#include <CL/cl.hpp>
+
+
+#ifdef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#  pragma GCC diagnostic pop
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#ifdef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#  undef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
+
+
+#undef CL_SILENCE_DEPRECATION
+#undef __CL_ENABLE_EXCEPTIONS
+
+#undef CL_USE_DEPRECATED_OPENCL_1_0_APIS
+#undef CL_USE_DEPRECATED_OPENCL_1_1_APIS
+#undef CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#undef CL_USE_DEPRECATED_OPENCL_2_0_APIS
+#undef CL_USE_DEPRECATED_OPENCL_2_1_APIS
+#undef CL_USE_DEPRECATED_OPENCL_2_2_APIS
+
+
+#endif  // @CL_HPP_INCLUDE_GUARD_MACRO@
