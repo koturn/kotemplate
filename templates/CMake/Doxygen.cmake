@@ -81,7 +81,7 @@ function(add_doxygen targetname)
     -D "DOXY_PROJECT_STRIP_FROM_PATH=${CMAKE_SOURCE_DIR}"
     -D "DOXY_DOCUMENTATION_OUTPUT_PATH=${outputdir}"
     -D "DOXY_PROJECT_NAME=${targetname}"
-    -P "${doxydir}/doxygen-script.cmake"
+    -P "${doxydir}/DoxygenScript.cmake"
     DEPENDS ${doxydir}/templates/Doxyfile.in
     ${outputdir}/${targetname}
     WORKING_DIRECTORY
