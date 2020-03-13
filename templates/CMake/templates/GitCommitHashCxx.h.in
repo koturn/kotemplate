@@ -1,6 +1,6 @@
 #ifndef @GCH_INCLUDE_GUARD_MACRO@
 #define @GCH_INCLUDE_GUARD_MACRO@
 
-extern const char kRevision[];
+extern const char @GCH_VARNAME@[];
 
 #endif  // @GCH_INCLUDE_GUARD_MACRO@

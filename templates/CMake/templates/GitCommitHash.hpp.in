@@ -1,0 +1,23 @@
+#ifndef @GCH_INCLUDE_GUARD_MACRO@
+#define @GCH_INCLUDE_GUARD_MACRO@
+
+
+#if __cplusplus >= 201703L \
+  || defined(_MSVC_LANG) && _MSVC_LANG >= 201703L \
+  || defined(__cpp_inline_variables)
+inline constexpr char @GCH_VARNAME@[] = "@GIT_COMMIT_HASH@";
+#elif #if __cplusplus >= 201402L \
+  || defined(_MSVC_LANG) && _MSVC_LANG >= 201402L
+namespace
+{
+constexpr char @GCH_VARNAME@[] = "@GIT_COMMIT_HASH@";
+}
+#else
+namespace
+{
+const char @GCH_VARNAME@[] = "@GIT_COMMIT_HASH@";
+}
+#endif
+
+
+#endif  // @GCH_INCLUDE_GUARD_MACRO@

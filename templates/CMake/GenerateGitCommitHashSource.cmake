@@ -1,19 +1,62 @@
+include(CMakeParseArguments)
+
 set(GCH_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
-function(generate_gch_sources source_file header_file)
+function(generate_gch_sources)
+  set(options)
+  set(oneValueArgs
+    SOURCE
+    HEADER
+    INCLUDE_GUARD_MACRO
+    VARNAME)
+  cmake_parse_arguments(VERSIONRC "${options}" "${oneValueArgs}" "" ${ARGN})
+
+  if(NOT DEFINED GCH_HEADER)
+    message(FATAL_ERROR "[generate_gch_sources] You must specify HEADER option")
+  endif()
+
   execute_process(
     COMMAND git rev-parse HEAD
     OUTPUT_VARIABLE GIT_COMMIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  get_filename_component(GCH_HEADER_FILENAME "${header_file}" NAME)
-  configure_file(
-    ${GCH_CURRENT_LIST_DIR}/templates/GitCommitHash.c.in
-    ${source_file})
 
-  string(REGEX REPLACE "[^0-9A-Za-z_]" "_" GCH_INCLUDE_GUARD_MACRO "${GCH_HEADER_FILENAME}")
-  string(TOUPPER ${GCH_INCLUDE_GUARD_MACRO} GCH_INCLUDE_GUARD_MACRO)
-  configure_file(
-    ${GCH_CURRENT_LIST_DIR}/templates/GitCommitHash.h.in
-    ${header_file})
+  if(NOT DEFINED GCH_VARNAME)
+    set(GCH_VARNAME "kCommitHash")
+  endif()
+
+  get_filename_component(GCH_HEADER_FILENAME "${GCH_HEADER}" NAME)
+  if(NOT DEFINED GCH_INCLUDE_GUARD_MACRO)
+    string(REGEX REPLACE "[^0-9A-Za-z_]" "_" GCH_INCLUDE_GUARD_MACRO "${GCH_HEADER_FILENAME}")
+    string(TOUPPER ${GCH_INCLUDE_GUARD_MACRO} GCH_INCLUDE_GUARD_MACRO)
+  endif()
+
+  if(DEFINED GCH_SOURCE)
+    configure_file(
+      ${GCH_CURRENT_LIST_DIR}/templates/GitCommitHash.c.in
+      ${GCH_SOURCE}
+      @ONLY)
+    if("${GCH_SOURCE}" MATCHES "\\.c$")
+      configure_file(
+        ${GCH_CURRENT_LIST_DIR}/templates/GitCommitHashC.h.in
+        ${GCH_HEADER}
+        @ONLY)
+      message(STATUS "[generate_gch_sources] Generated C source and its header file.")
+    else()
+      configure_file(
+        ${GCH_CURRENT_LIST_DIR}/templates/GitCommitHashCxx.h.in
+        ${GCH_HEADER}
+        @ONLY)
+      message(STATUS "[generate_gch_sources] Generated C++ source and its header file.")
+    endif()
+    message(STATUS "[generate_gch_sources] Configure done. Output file: ${GCH_SOURCE}")
+    message(STATUS "[generate_gch_sources] Configure done. Output file: ${GCH_HEADER}")
+  else()
+    configure_file(
+      ${GCH_CURRENT_LIST_DIR}/templates/GitCommitHash.hpp.in
+      ${GCH_HEADER}
+      @ONLY)
+    message(STATUS "[generate_gch_sources] Generated C++ header file (header only)")
+    message(STATUS "[generate_gch_sources] Configure done. Output file: ${GCH_HEADER}")
+  endif()
 endfunction()
