@@ -1,5 +1,7 @@
 include(CMakeParseArguments)
 
+set(CL_HPP_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
 function(generate_clhpp_wrapper_header header_file_path)
   set(options)
   set(oneValueArgs
@@ -45,12 +47,12 @@ function(generate_clhpp_wrapper_header header_file_path)
       set(CL_USE_DEPRECATED_OPENCL_2_2_APIS ON)
     endif()
     configure_file(
-      ${CMAKE_SOURCE_DIR}/cmake/templates/clWrapper.hpp.in
+      ${CL_HPP_CURRENT_LIST_DIR}/templates/clWrapper.hpp.in
       ${header_file_path}
       @ONLY)
   elseif(CL_HPP_HEADER_VERSION EQUAL 2)
     configure_file(
-      ${CMAKE_SOURCE_DIR}/cmake/templates/cl2Wrapper.hpp.in
+      ${CL_HPP_CURRENT_LIST_DIR}/templates/cl2Wrapper.hpp.in
       ${header_file_path}
       @ONLY)
   else()

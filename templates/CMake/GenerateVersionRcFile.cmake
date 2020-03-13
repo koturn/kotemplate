@@ -1,5 +1,7 @@
 include(CMakeParseArguments)
 
+set(VERSIONRC_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
 # You can specify resource strings in arguments:
 #   NAME                      - Name of executable
 #   PRODUCT_NAME              - Name of product (${NAME} is default)
@@ -199,7 +201,7 @@ function(generate_version_rcfile rcfile)
   endif()
 
   configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/VersionInfo.rc.in
+    ${VERSIONRC_CURRENT_LIST_DIR}/cmake/templates/VersionInfo.rc.in
     ${rcfile}
     @ONLY)
   message(STATUS "Configure done. Output file: ${rcfile}")
