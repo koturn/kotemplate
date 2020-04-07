@@ -17,7 +17,7 @@ function(generate_gch_sources)
 
   execute_process(
     COMMAND git rev-parse HEAD
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_VARIABLE GCH_COMMIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 
