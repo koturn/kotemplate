@@ -6,15 +6,31 @@
 #endif  // __MSYS__
 
 
-#cmakedefine CL_SILENCE_DEPRECATION
-#cmakedefine __CL_ENABLE_EXCEPTIONS
+#ifndef CL_SILENCE_DEPRECATION
+#  cmakedefine CL_SILENCE_DEPRECATION
+#endif  // CL_SILENCE_DEPRECATION
+#ifndef __CL_ENABLE_EXCEPTIONS
+#  cmakedefine __CL_ENABLE_EXCEPTIONS
+#endif  // __CL_ENABLE_EXCEPTIONS
 
-#cmakedefine CL_USE_DEPRECATED_OPENCL_1_0_APIS
-#cmakedefine CL_USE_DEPRECATED_OPENCL_1_1_APIS
-#cmakedefine CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#cmakedefine CL_USE_DEPRECATED_OPENCL_2_0_APIS
-#cmakedefine CL_USE_DEPRECATED_OPENCL_2_1_APIS
-#cmakedefine CL_USE_DEPRECATED_OPENCL_2_2_APIS
+#ifndef CL_USE_DEPRECATED_OPENCL_1_0_APIS
+#  cmakedefine CL_USE_DEPRECATED_OPENCL_1_0_APIS
+#endif  // CL_USE_DEPRECATED_OPENCL_1_0_APIS
+#ifndef CL_USE_DEPRECATED_OPENCL_1_1_APIS
+#  cmakedefine CL_USE_DEPRECATED_OPENCL_1_1_APIS
+#endif  // CL_USE_DEPRECATED_OPENCL_1_1_APIS
+#ifndef CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#  cmakedefine CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#endif  // CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#ifndef CL_USE_DEPRECATED_OPENCL_2_0_APIS
+#  cmakedefine CL_USE_DEPRECATED_OPENCL_2_0_APIS
+#endif  // CL_USE_DEPRECATED_OPENCL_2_0_APIS
+#ifndef CL_USE_DEPRECATED_OPENCL_2_1_APIS
+#  cmakedefine CL_USE_DEPRECATED_OPENCL_2_1_APIS
+#endif  // CL_USE_DEPRECATED_OPENCL_2_1_APIS
+#ifndef CL_USE_DEPRECATED_OPENCL_2_2_APIS
+#  cmakedefine CL_USE_DEPRECATED_OPENCL_2_2_APIS
+#endif  // CL_USE_DEPRECATED_OPENCL_2_2_APIS
 
 
 #if (defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 6))
@@ -26,9 +42,15 @@
 #  pragma GCC diagnostic ignored "-Wcast-qual"
 #  pragma GCC diagnostic ignored "-Wconversion"
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
-#  pragma GCC diagnostic ignored "-Wsuggest-override"
 #  pragma GCC diagnostic ignored "-Wuseless-cast"
-#  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#  if __GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 7
+#    pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#  endif
+#  if __GNUC__ > 5 || __GNUC__ == 5 && __GNUC_MINOR__ >= 1
+#    pragma GCC diagnostic ignored "-Wsuggest-final-methods"
+#    pragma GCC diagnostic ignored "-Wsuggest-override"
+#    pragma GCC diagnostic ignored "-Wsuggest-final-types"
+#  endif
 #endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
 
 
@@ -41,17 +63,6 @@
 #ifdef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
 #  undef @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
 #endif  // @CL_HPP_INCLUDE_GUARD_MACRO@_AVAILABLE_GCC_DIAGNOSTIC_PRAGMA
-
-
-#undef CL_SILENCE_DEPRECATION
-#undef __CL_ENABLE_EXCEPTIONS
-
-#undef CL_USE_DEPRECATED_OPENCL_1_0_APIS
-#undef CL_USE_DEPRECATED_OPENCL_1_1_APIS
-#undef CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#undef CL_USE_DEPRECATED_OPENCL_2_0_APIS
-#undef CL_USE_DEPRECATED_OPENCL_2_1_APIS
-#undef CL_USE_DEPRECATED_OPENCL_2_2_APIS
 
 
 #endif  // @CL_HPP_INCLUDE_GUARD_MACRO@
