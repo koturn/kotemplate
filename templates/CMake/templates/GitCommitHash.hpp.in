@@ -5,20 +5,21 @@
 #if __cplusplus >= 201703L \
   || defined(_MSVC_LANG) && _MSVC_LANG >= 201703L \
   || defined(__cpp_inline_variables)
-inline constexpr char @GCH_VARNAME@[] = "@GCH_COMMIT_HASH@";
+inline constexpr
+#elif defined(_MSC_VER)
+__declspec(selectany) extern constexpr
+#elif defined(__CYGWIN__) || defined(__MSYS__) || defined(__MINGW32__) || defined(__MINGW64__)
+__attribute__((selectany)) extern constexpr
+#elif defined(__GNUC__)
+__attribute__((weak)) extern constexpr
 #elif __cplusplus >= 201103L \
   || defined(_MSVC_LANG) && _MSVC_LANG >= 201103L \
   || defined(_MSC_VER) && _MSC_VER >= 1900
-namespace
-{
-constexpr char @GCH_VARNAME@[] = "@GCH_COMMIT_HASH@";
-}
+static constexpr
 #else
-namespace
-{
-const char @GCH_VARNAME@[] = "@GCH_COMMIT_HASH@";
-}
+static const
 #endif
+char @GCH_VARNAME@[] = "@GCH_COMMIT_HASH@";
 
 
 #endif  // @GCH_INCLUDE_GUARD_MACRO@
