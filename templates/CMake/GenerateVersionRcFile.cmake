@@ -3,29 +3,29 @@ include(CMakeParseArguments)
 set(VERSIONRC_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 # You can specify resource strings in arguments:
-#   NAME                      - Name of executable
-#   PRODUCT_NAME              - Name of product (${NAME} is default)
-#   FILE_DESCRIPTION          - ${NAME} is default
-#   VERSION_MAJOR             - Default: ${PROJECT_VERSION_MAJOR} if defined, otherwise 1.
-#   VERSION_MINOR             - Default: ${PROJECT_VERSION_MINOR} if defined, otherwise 0.
-#   VERSION_PATCH             - Default: ${PROJECT_VERSION_PATCH} if defined, otherwise 0.
-#   VERSION_TWEAK             - Default: ${PROJECT_VERSION_TWEAK} if defined, otherwise 0.
-#   FILE_VERSION_MAJOR        - Default: ${VERSION_MAJOR}
-#   FILE_VERSION_MINOR        - Default: ${VERSION_MINOR}
-#   FILE_VERSION_PATCH        - Default: ${VERSION_PATCH}
-#   FILE_VERSION_TWEAK        - Default: ${VERSION_TWEAK}
-#   PRODUCT_VERSION_MAJOR     - Default: ${VERSION_MAJOR}
-#   PRODUCT_VERSION_MINOR     - Default: ${VERSION_MINOR}
-#   PRODUCT_VERSION_PATCH     - Default: ${VERSION_PATCH}
-#   PRODUCT_VERSION_TWEAK     - Default: ${VERSION_TWEAK}
-#   COMPANY_NAME              - Your company name (no defaults)
-#   COMPANY_COPYRIGHT         - Default: Copyright (C) ${CURRENT_YEAR} ${COMPANY_NAME} is default if ${COMPANY_NAME} is defined, otherwise "".
-#   COMMENTS                  - Default: ${NAME} v${VERSION_MAJOR}.${VERSION_MINOR} is default
-#   ORIGINAL_FILENAME         - Default: ${NAME} is default
-#   INTERNAL_NAME             - Default: ${NAME} is default
-#   FILEFLAGS                 - Default: "VS_FF_DEBUG" if {CMAKE_BUILD_TYPE} is "Debug" or "RelWithDebInfo", otherwise 0x0L.
-#   FILETYPE                  - Default: "VFT_APP"
-#   FILESUBTYPE               - Default: "0x0L"
+#   NAME                  - Name of executable
+#   PRODUCT_NAME          - Default: ${NAME}
+#   FILE_DESCRIPTION      - Default: ${PROJECT_DESCRIPTION} or ${NAME}.
+#   VERSION_MAJOR         - Default: ${PROJECT_VERSION_MAJOR} if defined, otherwise 1.
+#   VERSION_MINOR         - Default: ${PROJECT_VERSION_MINOR} if defined, otherwise 0.
+#   VERSION_PATCH         - Default: ${PROJECT_VERSION_PATCH} if defined, otherwise 0.
+#   VERSION_TWEAK         - Default: ${PROJECT_VERSION_TWEAK} if defined, otherwise 0.
+#   FILE_VERSION_MAJOR    - Default: ${VERSION_MAJOR}
+#   FILE_VERSION_MINOR    - Default: ${VERSION_MINOR}
+#   FILE_VERSION_PATCH    - Default: ${VERSION_PATCH}
+#   FILE_VERSION_TWEAK    - Default: ${VERSION_TWEAK}
+#   PRODUCT_VERSION_MAJOR - Default: ${VERSION_MAJOR}
+#   PRODUCT_VERSION_MINOR - Default: ${VERSION_MINOR}
+#   PRODUCT_VERSION_PATCH - Default: ${VERSION_PATCH}
+#   PRODUCT_VERSION_TWEAK - Default: ${VERSION_TWEAK}
+#   COMPANY_NAME          - Your company name (no defaults)
+#   COMPANY_COPYRIGHT     - Default: Copyright (C) ${CURRENT_YEAR} ${COMPANY_NAME} is default if ${COMPANY_NAME} is defined, otherwise "".
+#   COMMENTS              - Default: ${NAME} v${VERSION_MAJOR}.${VERSION_MINOR} is default
+#   ORIGINAL_FILENAME     - Default: ${NAME} is default
+#   INTERNAL_NAME         - Default: ${NAME} is default
+#   FILEFLAGS             - Default: "VS_FF_DEBUG" if {CMAKE_BUILD_TYPE} is "Debug" or "RelWithDebInfo", otherwise 0x0L.
+#   FILETYPE              - Default: "VFT_APP"
+#   FILESUBTYPE           - Default: "0x0L"
 function(generate_version_rcfile rcfile)
   set(options)
   set(oneValueArgs
@@ -56,14 +56,14 @@ function(generate_version_rcfile rcfile)
   cmake_parse_arguments(VERSIONRC "${options}" "${oneValueArgs}" "" ${ARGN})
 
   if(NOT DEFINED VERSIONRC_PRODUCT_NAME)
-    if(DEFINED PROJECT_NAME)
+    if(DEFINED PROJECT_NAME AND NOT "${PROJECT_NAME}" STREQUAL "")
       set(VERSIONRC_PRODUCT_NAME "${PROJECT_NAME}")
     else()
       set(VERSIONRC_PRODUCT_NAME "${VERSIONRC_NAME}")
     endif()
   endif()
   if(NOT DEFINED VERSIONRC_FILE_DESCRIPTION)
-    if(DEFINED PROJECT_DESCRIPTION)
+    if(DEFINED PROJECT_DESCRIPTION AND NOT "${PROJECT_DESCRIPTION}" STREQUAL "")
       set(VERSIONRC_FILE_DESCRIPTION "${PROJECT_DESCRIPTION}")
     else()
       set(VERSIONRC_FILE_DESCRIPTION "${VERSIONRC_NAME}")
@@ -201,8 +201,8 @@ function(generate_version_rcfile rcfile)
   endif()
 
   configure_file(
-    ${VERSIONRC_CURRENT_LIST_DIR}/cmake/templates/VersionInfo.rc.in
+    ${VERSIONRC_CURRENT_LIST_DIR}/templates/VersionInfo.rc.in
     ${rcfile}
     @ONLY)
-  message(STATUS "Configure done. Output file: ${rcfile}")
+  message(STATUS "[generate_version_rcfile] Configure done. Output file: ${rcfile}")
 endfunction()
