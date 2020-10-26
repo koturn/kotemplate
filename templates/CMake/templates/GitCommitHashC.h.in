@@ -6,6 +6,7 @@
 extern "C" {
 #endif  /* __cplusplus */
 
+//! Commit hash string
 extern const char @GCH_VARNAME@[];
 
 #ifdef __cplusplus

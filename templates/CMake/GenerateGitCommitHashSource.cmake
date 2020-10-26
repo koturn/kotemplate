@@ -9,7 +9,7 @@ function(generate_gch_sources)
     HEADER
     INCLUDE_GUARD_MACRO
     VARNAME)
-  cmake_parse_arguments(VERSIONRC "${options}" "${oneValueArgs}" "" ${ARGN})
+  cmake_parse_arguments(GCH "${options}" "${oneValueArgs}" "" ${ARGN})
 
   if(NOT DEFINED GCH_HEADER)
     message(FATAL_ERROR "[generate_gch_sources] You must specify HEADER option")
@@ -17,6 +17,7 @@ function(generate_gch_sources)
 
   execute_process(
     COMMAND git rev-parse HEAD
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     OUTPUT_VARIABLE GCH_COMMIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -32,6 +33,9 @@ function(generate_gch_sources)
   endif()
 
   if(DEFINED GCH_SOURCE)
+    get_filename_component(GCH_SOURCE_DIR "${GCH_SOURCE}" DIRECTORY)
+    file(RELATIVE_PATH GCH_HEADER_RELPATH "${GCH_SOURCE_DIR}" "${GCH_HEADER}")
+
     configure_file(
       ${GCH_CURRENT_LIST_DIR}/templates/GitCommitHash.c.in
       ${GCH_SOURCE}
