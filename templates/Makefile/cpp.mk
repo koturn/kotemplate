@@ -98,11 +98,13 @@ DOXYFILE     := Doxyfile
 DOXYGENDISTS := doxygen_sqlite3.db html/ latex/
 # MACROS     := MACRO
 # INCDIRS    := ./include
+# LDDIRS     := ./lib
+# LIBS       := m
 CPPFLAGS     := $(addprefix -D,$(MACROS)) $(addprefix -I,$(INCDIRS))
 CFLAGS       := -pipe $(WARNING_CFLAGS) $(OPT_CFLAGS)
 CXXFLAGS     := -pipe $(WARNING_CXXFLAGS) $(OPT_CXXFLAGS)
-LDFLAGS      := -pipe $(OPT_LDFLAGS)
-LDLIBS       := $(OPT_LDLIBS)
+LDFLAGS      := -pipe $(OPT_LDFLAGS)) $(addprefix -L,$(LDDIRS))
+LDLIBS       := $(OPT_LDLIBS) $(addprefix -l,$(LIBS))
 CTAGSFLAGS   := -R --languages=c,c++
 TARGET       := <+CURSOR+>
 SRCS         := $(addsuffix .cpp,$(basename $(TARGET)))
@@ -128,19 +130,19 @@ $(TARGET): $(OBJS)
 
 # $(OBJS): $(SRCS)
 # -include $(DEPENDS)
-$(foreach SRC,$(SRCS),$(eval $(filter-out \,$(shell $(CXX) -MM $(SRC)))))
+$(foreach SRC,$(SRCS),$(eval $(filter-out \,$(shell $(CXX) $(CPPFLAGS) -MM $(SRC)))))
 
 test: $(TARGET)
 	@./$<
 
 depends:
-	$(CXX) -MM $(SRCS) > $(DEPENDS)
+	$(CXX) $(CPPFLAGS) -MM $(SRCS) > $(DEPENDS)
 
 asm:
-	$(CXX) $(SRCS) -S --verbose-asm $(CPPFLAGS) $(CXXFLAGS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -S --verbose-asm $(SRCS)
 
 syntax:
-	$(CXX) $(SRCS) -fsyntax-only $(CPPFLAGS) $(WARNING_CXXFLAGS)
+	$(CXX) $(WARNING_CXXFLAGS) $(CPPFLAGS) -fsyntax-only $(SRCS)
 
 ctags:
 	$(CTAGS) $(CTAGSFLAGS)
