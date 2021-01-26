@@ -1,4 +1,6 @@
-#!/bin/sh -eu
+#!/bin/sh
+
+set -eu
 
 if [ $# -lt 1 ]; then
   echo Invalid arguments 1>&2

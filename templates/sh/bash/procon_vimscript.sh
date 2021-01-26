@@ -1,4 +1,6 @@
-#!/bin/bash -eu
+#!/bin/bash
+
+set -eu
 
 vim -u NONE -i NONE -N -n -e -s -S <(cat <<EOF
 function! s:main(input) abort
