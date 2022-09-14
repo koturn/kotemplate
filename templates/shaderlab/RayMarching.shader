@@ -2,24 +2,24 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 {
     Properties
     {
-        _Color ("Color of the objects", Color) = (1.0, 1.0, 1.0, 1.0)
         _MaxLoop ("Maximum loop count", Int) = 60
         _MinRayDist ("Minimum distance of the ray", Float) = 0.01
         _MaxRayDist ("Maximum distance of the ray", Float) = 1000.0
         _Scale ("Scale vector", Vector) = (1.0, 1.0, 1.0, 1.0)
         _MarchingFactor ("Marching Factor", Float) = 1.0
 
+        _Color ("Color of the objects", Color) = (1.0, 1.0, 1.0, 1.0)
         _SpecularPower ("Specular Power", Range(0.0, 100.0)) = 5.0
         _SpecularColor ("Specular Color", Color) = (0.5, 0.5, 0.5, 1.0)
 
-        [KeywordEnum(Lembert, Half Lembert, Squred Half Lembert)]
-        _DiffuseMode ("Reflection Model", Int) = 2
+        [KeywordEnum(Lembert, Half Lembert, Squred Half Lembert, Disable)]
+        _DiffuseMode ("Reflection Mode", Int) = 2
 
-        [KeywordEnum(Original, Half Vector)]
-        _SpecularMode ("Reflection Model", Int) = 1
+        [KeywordEnum(Original, Half Vector, Disable)]
+        _SpecularMode ("Specular Mode", Int) = 1
 
-        [KeywordEnum(Legacy, SH9)]
-        _AmbientMode ("Reflection Model", Int) = 1
+        [KeywordEnum(Legacy, SH9, Disable)]
+        _AmbientMode ("Ambient Mode", Int) = 1
 
         [Toggle(_ENABLE_REFLECTION_PROBE)]
         _EnableReflectionProbe ("Enable Reflection Probe", Int) = 1
@@ -28,6 +28,9 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
         [Enum(UnityEngine.Rendering.CullMode)]
         _Cull ("Culling Mode", Int) = 1  // Default: Front
+
+        // [ColorMask]
+        _ColorMask ("Color Mask", Int) = 15
 
         [Enum(Off, 0, On, 1)]
         _AlphaToMask ("Alpha To Mask", Int) = 0  // Default: Off
@@ -43,8 +46,8 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             "VRCFallback" = "Hidden"
         }
 
-        LOD 100
         Cull [_Cull]
+        ColorMask [_ColorMask]
         AlphaToMask [_AlphaToMask]
 
         Pass
@@ -54,9 +57,9 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma shader_feature_local_fragment _DIFFUSEMODE_LEMBERT _DIFFUSEMODE_HALF_LEMBERT _DIFFUSEMODE_SQURED_HALF_LEMBERT
-            #pragma shader_feature_local_fragment _SPECULARMODE_ORIGINAL _SPECULARMODE_HALF_VECTOR
-            #pragma shader_feature_local_fragment _AMBIENTMODE_LEGACY _AMBIENTMODE_SH9
+            #pragma shader_feature_local_fragment _DIFFUSEMODE_LEMBERT _DIFFUSEMODE_HALF_LEMBERT _DIFFUSEMODE_SQURED_HALF_LEMBERT _DIFFUSEMODE_DISABLE
+            #pragma shader_feature_local_fragment _SPECULARMODE_ORIGINAL _SPECULARMODE_HALF_VECTOR _SPECULARMODE_DISABLE
+            #pragma shader_feature_local_fragment _AMBIENTMODE_LEGACY _AMBIENTMODE_SH9 _AMBIENTMODE_DISABLE
             #pragma shader_feature_local_fragment _ _ENABLE_REFLECTION_PROBE
 
             #include "UnityCG.cginc"
@@ -77,9 +80,9 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
              */
             struct v2f
             {
+                float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 pos : TEXCOORD1;
-                float4 vertex : SV_POSITION;
             };
 
             /*!
@@ -94,7 +97,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             float sq(float x);
             float sdSphere(float3 p, float r);
-            float dist(float3 p);
+            float sdf(float3 p);
             float3 getNormal(float3 p);
             half4 getRefProbeColor(half3 refDir);
 
@@ -158,11 +161,10 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 float t = 0.0;
 
                 // Loop of Ray Marching.
-                UNITY_UNROLL
                 for (int i = 0; i < _MaxLoop; i++) {
                     // Position of the tip of the ray.
                     const float3 p = localSpaceCameraPos + rayDir * t;
-                    d = dist(p * _Scale) * invScale;
+                    d = sdf(p * _Scale) * invScale;
 
                     // Break this loop if the ray goes too far or collides.
                     if (d < _MinRayDist) {
@@ -190,31 +192,37 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 // Lambertian reflectance.
                 const float3 lightCol = _LightColor0.rgb * LIGHT_ATTENUATION(i);
                 const float nDotL = saturate(dot(normal, lightDir));
+
 #if defined(_DIFFUSEMODE_SQURED_HALF_LEMBERT)
                 const float3 diffuse = lightCol * sq(nDotL * 0.5 + 0.5);
 #elif defined(_DIFFUSEMODE_HALF_LEMBERT)
                 const float3 diffuse = lightCol * (nDotL * 0.5 + 0.5);
-#else
+#elif defined(_DIFFUSEMODE_LEMBERT)
                 const float3 diffuse = lightCol * nDotL;
+#else
+                const float3 diffuse = float3(1.0, 1.0, 1.0);
 #endif  // defined(_DIFFUSEMODE_SQURED_HALF_LEMBERT)
 
                 // Specular reflection.
 #ifdef _SPECULARMODE_HALF_VECTOR
                 const float3 specular = pow(max(0.0, dot(normalize(lightDir + viewDir), normal)), _SpecularPower) * _SpecularColor.xyz * lightCol;
-#else
+#elif _SPECULARMODE_ORIGINAL
                 const float3 specular = pow(max(0.0, dot(reflect(-lightDir, normal), viewDir)), _SpecularPower) * _SpecularColor.xyz * lightCol;
+#else
+                const float3 specular = float3(0.0, 0.0, 0.0);
 #endif  // _SPECULARMODE_HALF_VECTOR
 
                 // Ambient color.
 #ifdef _AMBIENTMODE_SH9
-                const float3 ambient = ShadeSH9(half4(normal, 1.0));
-#else
+                const float3 ambient = ShadeSH9(half4(UnityObjectToWorldNormal(normal), 1.0));
+#elif _AMBIENTMODE_LEGACY
                 const float3 ambient = UNITY_LIGHTMODEL_AMBIENT.rgb;
+#else
+                const float3 ambient = float3(0.0, 0.0, 0.0);
 #endif  // _AMBIENTMODE_SH9
 
 #ifdef _ENABLE_REFLECTION_PROBE
-                const half3 refDir = UnityObjectToWorldNormal(reflect(-viewDir, normal));
-                const half4 refColor = getRefProbeColor(refDir);
+                const half4 refColor = getRefProbeColor(UnityObjectToWorldNormal(reflect(-viewDir, normal)));
                 const float4 col = float4((diffuse + ambient) * lerp(_Color.rgb, refColor.rgb, _RefProbeBlendCoeff) + specular, _Color.a);
 #else
                 // Output color.
@@ -255,7 +263,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
              * @param [in] p  Position of the tip of the ray.
              * @return Signed Distance to the objects.
              */
-            float dist(float3 p)
+            float sdf(float3 p)
             {
                 return sdSphere(p, 0.5);
             }
@@ -275,10 +283,10 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 static const float2 kh = k * 0.0001;
 
                 return normalize(
-                    k.xyy * dist(p + kh.xyy)
-                        + k.yyx * dist(p + kh.yyx)
-                        + k.yxy * dist(p + kh.yxy)
-                        + k.xxx * dist(p + kh.xxx));
+                    k.xyy * sdf(p + kh.xyy)
+                        + k.yyx * sdf(p + kh.yyx)
+                        + k.yxy * sdf(p + kh.yxy)
+                        + k.xxx * sdf(p + kh.xxx));
 
 #else
                 // Naive normal calculation.
@@ -287,9 +295,9 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
                 return normalize(
                     float3(
-                        dist(p + d.xyy) - dist(p - d.xyy),
-                        dist(p + d.yxy) - dist(p - d.yxy),
-                        dist(p + d.yyx) - dist(p - d.yyx)));
+                        sdf(p + d.xyy) - sdf(p - d.xyy),
+                        sdf(p + d.yxy) - sdf(p - d.yxy),
+                        sdf(p + d.yyx) - sdf(p - d.yyx)));
 #endif
             }
 
