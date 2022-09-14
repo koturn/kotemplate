@@ -3,28 +3,82 @@ Shader "<+AUTHOR+>/UnlitVF"
     Properties
     {
         _MainTex ("Main texture", 2D) = "white" {}
+
         _Color ("Multiplicative color for _MainTex", Color) = (1.0, 1.0, 1.0, 1.0)
 
         _EmissionTex ("Emission texture", 2D) = "white" {}
-        [HDR] _EmissionColor ("Multiplicative color for _EmissionTex", Color) = (0.0, 0.0, 0.0, 1.0)
 
-        [Toggle]
-        _EnableFog ("Enable Fog", Float) = 1
+        [HDR]
+        _EmissionColor ("Multiplicative color for _EmissionTex", Color) = (0.0, 0.0, 0.0, 1.0)
+
 
         [Enum(UnityEngine.Rendering.CullMode)]
-        _Cull("Cull", Float) = 2  // Default: Back
+        _Cull("Culling Mode", Int) = 2  // Default: Back
 
-        [Enum(UnityEngine.Rendering.CompareFunction)]
-        _ZTest("ZTest", Float) = 4  // Default: LEqual
+        [HideInInspector]
+        _RenderingMode("Rendering Mode", Int) = 2
+
+        [Toggle]
+        _AlphaTest("Alpha test", Int) = 0
+
+        _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
+
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _SrcBlend("Blend Source Factor", Int) = 5  // Default: SrcAlpha
+
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _DstBlend("Blend Destination Factor", Int) = 10  // Default: OneMinusSrcAlpha
+
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _SrcBlendAlpha("Blend Source Factor", Int) = 5  // Default: SrcAlpha
+
+        [Enum(UnityEngine.Rendering.BlendMode)]
+        _DstBlendAlpha("Blend Destination Factor", Int) = 10  // Default: OneMinusSrcAlpha
+
+        [Enum(UnityEngine.Rendering.BlendOp)]
+        _BlendOp("BlendOp", Int) = 0  // Default: Add
+
+        [Enum(UnityEngine.Rendering.BlendOp)]
+        _BlendOpAlpha("BlendOpAlpha", Int) = 0  // Default: Add
 
         [Enum(Off, 0, On, 1)]
-        _ZWrite("ZWrite", Float) = 0  // Default: Off
+        _ZWrite("ZWrite", Int) = 0  // Default: Off
 
-        [Enum(UnityEngine.Rendering.BlendMode)]
-        _SrcFactor("Src Factor", Float) = 5  // Default: SrcAlpha
+        [Enum(UnityEngine.Rendering.CompareFunction)]
+        _ZTest("ZTest", Int) = 4  // Default: LEqual
 
-        [Enum(UnityEngine.Rendering.BlendMode)]
-        _DstFactor("Dst Factor", Float) = 10  // Default: OneMinusSrcAlpha
+        [Enum(2D, 0, 3D, 1)]
+        _OffsetFact("Offset Factor", Int) = 0
+
+        _OffsetUnit("Offset Units", Range(-100, 100)) = 0
+
+        Enum(None, 0, A, 1, B, 2, BA, 3, G, 4, GA, 5, GB, 6, GBA, 7, R, 8, RA, 9, RB,10, RBA, 11, RG, 12, RGA, 13, RGB, 14, RGBA, 15)
+        _ColorMask("Color Mask", Int) = 15
+
+        [Enum(Off, 0, On, 1)]
+        _AlphaToMask("Alpha To Mask", Int) = 0  // Default: Off
+
+
+        [IntRange]
+        _StencilRef("Stencil Reference Value", Range(0, 255)) = 0
+
+        [IntRange]
+        _StencilReadMask("Stencil ReadMask Value", Range(0, 255)) = 255
+
+        [IntRange]
+        _StencilWriteMask("Stencil WriteMask Value", Range(0, 255)) = 255
+
+        [Enum(UnityEngine.Rendering.CompareFunction)]
+        _StencilCompFunc("Stencil Compare Function", Int) = 8  // Default: Always
+
+        [Enum(UnityEngine.Rendering.StencilOp)]
+        _StencilPass("Stencil Pass", Int) = 0  // Default: Keep
+
+        [Enum(UnityEngine.Rendering.StencilOp)]
+        _StencilFail("Stencil Fail", Int) = 0  // Default: Keep
+
+        [Enum(UnityEngine.Rendering.StencilOp)]
+        _StencilZFail("Stencil ZFail", Int) = 0  // Default: Keep
     }
 
     SubShader
@@ -33,23 +87,41 @@ Shader "<+AUTHOR+>/UnlitVF"
         {
             "RenderType" = "Transparent"
             "Queue" = "Transparent"
+            "VRCFallback" = "StandardFade"
         }
 
         Cull [_Cull]
+        Blend [_SrcBlend] [_DstBlend], [_SrcBlendAlpha] [_DstBlendAlpha]
+        BlendOp [_BlendOp], [_BlendOpAlpha]
         ZWrite [_ZWrite]
         ZTest [_ZTest]
-        Blend [_SrcFactor] [_DstFactor]
+        Offset [_OffsetFact], [_OffsetUnit]
+        AlphaToMask [_AlphaToMask]
+
+        Stencil
+        {
+            Ref [_StencilRef]
+            ReadMask [_StencilReadMask]
+            WriteMask [_StencilWriteMask]
+            Comp [_StencilCompFunc]
+            Pass [_StencilPass]
+            Fail [_StencilFail]
+            ZFail [_StencilZFail]
+        }
 
         Pass
         {
             CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
             #pragma target 3.0
+
             #pragma only_renderers d3d9 d3d11 d3d11_9x glcore gles gles3 metal vulkan xboxone ps4 n3ds wiiu switch
             #pragma fragmentoption ARB_precision_hint_fastest
+
             #pragma multi_compile_fog
-            #pragma shader_feature _ _ENABLEFOG_ON
+            #pragma shader_feature_local_fragment _ _ALPHATEST_ON
+
+            #pragma vertex vert
+            #pragma fragment frag
 
             #include "UnityCG.cginc"
 
@@ -57,6 +129,9 @@ Shader "<+AUTHOR+>/UnlitVF"
             uniform float4 _Color;
             UNITY_DECLARE_TEX2D(_EmissionTex);
             uniform float4 _EmissionColor;
+#ifdef _ALPHATEST_ON
+            uniform float _Cutoff;
+#endif  // _ALPHATEST_ON
 
             /*!
              * @brief Input data type for vertex shader function
@@ -74,9 +149,7 @@ Shader "<+AUTHOR+>/UnlitVF"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-#ifdef _ENABLEFOG_ON
                 UNITY_FOG_COORDS(1)
-#endif  // _ENABLEFOG_ON
             };
 
 
@@ -90,9 +163,7 @@ Shader "<+AUTHOR+>/UnlitVF"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
-#ifdef _ENABLEFOG_ON
                 UNITY_TRANSFER_FOG(o, o.vertex);
-#endif  // _ENABLEFOG_ON
                 return o;
             }
 
@@ -104,11 +175,13 @@ Shader "<+AUTHOR+>/UnlitVF"
             fixed4 frag(v2f i) : SV_Target
             {
                 const float4 mainColor = UNITY_SAMPLE_TEX2D(_MainTex, i.uv) * _Color;
+#if _ALPHATEST_ON
+                clip(mainColor.a - _Cutoff);
+#endif  // _ALPHATEST_ON
+
                 const float4 emissionColor = UNITY_SAMPLE_TEX2D(_EmissionTex, i.uv) * _EmissionColor;
                 float4 col = mainColor + emissionColor;
-#ifdef _ENABLEFOG_ON
                 UNITY_APPLY_FOG(i.fogCoord, col);
-#endif  // _ENABLEFOG_ON
                 return col;
             }
             ENDCG
