@@ -98,12 +98,12 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             };
 
 
-            float sq(float x);
-            float sdSphere(float3 p, float r);
             float sdf(float3 p);
+            float sdSphere(float3 p, float r);
             float3 getNormal(float3 p);
             float getDepth(float3 p);
             half4 getRefProbeColor(half3 refDir);
+            float sq(float x);
 
 
             //! Color of light.
@@ -130,6 +130,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             /*!
              * @brief Vertex shader function.
+             *
              * @param [in] v  Input data
              * @return Output for fragment shader (v2f).
              */
@@ -150,6 +151,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             /*!
              * @brief Fragment shader function.
+             *
              * @param [in] fi  Input data from vertex shader
              * @return Output of each texels (fout).
              */
@@ -240,17 +242,20 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
 
             /*!
-             * @brief Calculate squared value.
-             * @param [in] x  A value.
-             * @return x * x
+             * @brief SDF (Signed Distance Function) of objects.
+             *
+             * @param [in] p  Position of the tip of the ray.
+             * @return Signed Distance to the objects.
              */
-            float sq(float x)
+            float sdf(float3 p)
             {
-                return x * x;
+                // <+CURSOR+>
+                return sdSphere(p, 0.5);
             }
 
             /*!
              * @brief SDF of Sphere.
+             *
              * @param [in] r  Radius of sphere.
              * @return Signed Distance to the Sphere.
              */
@@ -260,17 +265,8 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             }
 
             /*!
-             * @brief SDF (Signed Distance Function) of objects.
-             * @param [in] p  Position of the tip of the ray.
-             * @return Signed Distance to the objects.
-             */
-            float sdf(float3 p)
-            {
-                return sdSphere(p, 0.5);
-            }
-
-            /*!
              * @brief Calculate normal of the objects.
+             *
              * @param [in] p  Position of the tip of the ray.
              * @return Normal of the objects.
              */
@@ -304,6 +300,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             /*!
              * @brief Get depth of the specified position.
+             *
              * @param [in] p  3D-position.
              * @return Depth of the p.
              */
@@ -315,6 +312,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             /*!
              * @brief Get color of reflection probe.
+             *
              * @param [in] refDir  Reflect direction.
              * @return Color of reflection probe.
              */
@@ -323,6 +321,17 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 half4 refColor = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, refDir, 0.0);
                 refColor.rgb = DecodeHDR(refColor, unity_SpecCube0_HDR);
                 return refColor;
+            }
+
+            /*!
+             * @brief Calculate squared value.
+             *
+             * @param [in] x  A value.
+             * @return x * x
+             */
+            float sq(float x)
+            {
+                return x * x;
             }
             ENDCG
         }
