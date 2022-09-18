@@ -83,12 +83,15 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 pos : TEXCOORD1;
+                nointerpolation float3 localSpaceCameraPos : TEXCOORD2;
+                nointerpolation float3 localLightDir : TEXCOORD3;
+                nointerpolation float3 lightCol : COLOR0;
             };
 
             /*!
              * @brief Output of fragment shader.
              */
-            struct pout
+            struct fout
             {
                 fixed4 color : SV_Target;
                 float depth : SV_Depth;
@@ -99,6 +102,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             float sdSphere(float3 p, float r);
             float sdf(float3 p);
             float3 getNormal(float3 p);
+            float getDepth(float3 p);
             half4 getRefProbeColor(half3 refDir);
 
 
@@ -136,6 +140,9 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.pos = v.vertex.xyz;
                 o.uv = v.uv;
+                o.localSpaceCameraPos = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1.0)).xyz;
+                o.localLightDir = normalize(mul(unity_WorldToObject, _WorldSpaceLightPos0).xyz);
+                o.lightCol = _LightColor0.rgb * LIGHT_ATTENUATION(i);
 
                 return o;
             }
@@ -143,16 +150,14 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             /*!
              * @brief Fragment shader function.
-             * @param [in] i  Input data from vertex shader
-             * @return Output of each texels (pout).
+             * @param [in] fi  Input data from vertex shader
+             * @return Output of each texels (fout).
              */
-            pout frag(v2f i)
+            fout frag(v2f fi)
             {
-                // The start position of the ray is the local coordinate of the camera.
-                const float3 localSpaceCameraPos = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1.0)).xyz;
                 // Define ray direction by finding the direction of the local coordinates
                 // of the mesh from the local coordinates of the viewpoint.
-                const float3 rayDir = normalize(i.pos.xyz - localSpaceCameraPos);
+                const float3 rayDir = normalize(fi.pos.xyz - fi.localSpaceCameraPos);
                 const float invScale = 1.0 / _Scale;
 
                 // Distance.
@@ -163,7 +168,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 // Loop of Ray Marching.
                 for (int i = 0; i < _MaxLoop; i++) {
                     // Position of the tip of the ray.
-                    const float3 p = localSpaceCameraPos + rayDir * t;
+                    const float3 p = fi.localSpaceCameraPos + rayDir * t;
                     d = sdf(p * _Scale) * invScale;
 
                     // Break this loop if the ray goes too far or collides.
@@ -180,34 +185,31 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 // Discard if it is determined that the ray is not in collision.
                 clip(_MinRayDist - d);
 
-                const float finalPos = localSpaceCameraPos + rayDir * t;
+                const float3 finalPos = fi.localSpaceCameraPos + rayDir * t;
 
                 // Normal.
                 const float3 normal = getNormal(finalPos);
-                // Directional light angles to local coordinates.
-                const float3 lightDir = normalize(mul(unity_WorldToObject, _WorldSpaceLightPos0).xyz);
                 // View direction.
-                const float3 viewDir = normalize(localSpacaCameraPos - finalPos);
+                const float3 viewDir = normalize(fi.localSpaceCameraPos - finalPos);
 
                 // Lambertian reflectance.
-                const float3 lightCol = _LightColor0.rgb * LIGHT_ATTENUATION(i);
-                const float nDotL = saturate(dot(normal, lightDir));
+                const float nDotL = saturate(dot(normal, fi.localLightDir));
 
 #if defined(_DIFFUSEMODE_SQURED_HALF_LEMBERT)
-                const float3 diffuse = lightCol * sq(nDotL * 0.5 + 0.5);
+                const float3 diffuse = fi.lightCol * sq(nDotL * 0.5 + 0.5);
 #elif defined(_DIFFUSEMODE_HALF_LEMBERT)
-                const float3 diffuse = lightCol * (nDotL * 0.5 + 0.5);
+                const float3 diffuse = fi.lightCol * (nDotL * 0.5 + 0.5);
 #elif defined(_DIFFUSEMODE_LEMBERT)
-                const float3 diffuse = lightCol * nDotL;
+                const float3 diffuse = fi.lightCol * nDotL;
 #else
                 const float3 diffuse = float3(1.0, 1.0, 1.0);
 #endif  // defined(_DIFFUSEMODE_SQURED_HALF_LEMBERT)
 
                 // Specular reflection.
 #ifdef _SPECULARMODE_HALF_VECTOR
-                const float3 specular = pow(max(0.0, dot(normalize(lightDir + viewDir), normal)), _SpecularPower) * _SpecularColor.xyz * lightCol;
+                const float3 specular = pow(max(0.0, dot(normalize(fi.localLightDir + viewDir), normal)), _SpecularPower) * _SpecularColor.xyz * fi.lightCol;
 #elif _SPECULARMODE_ORIGINAL
-                const float3 specular = pow(max(0.0, dot(reflect(-lightDir, normal), viewDir)), _SpecularPower) * _SpecularColor.xyz * lightCol;
+                const float3 specular = pow(max(0.0, dot(reflect(-fi.localLightDir, normal), viewDir)), _SpecularPower) * _SpecularColor.xyz * fi.lightCol;
 #else
                 const float3 specular = float3(0.0, 0.0, 0.0);
 #endif  // _SPECULARMODE_HALF_VECTOR
@@ -229,12 +231,11 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                 const float4 col = float4((diffuse + ambient) * _Color.rgb + specular, _Color.a);
 #endif  // _ENABLE_REFLECTION_PROBE
 
-                pout o;
-                o.color = col;
-                const float4 projectionPos = UnityObjectToClipPos(float4(finalPos, 1.0));
-                o.depth = projectionPos.z / projectionPos.w;
+                fout fo;
+                fo.color = col;
+                fo.depth = getDepth(finalPos);
 
-                return o;
+                return fo;
             }
 
 
@@ -299,6 +300,17 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
                         sdf(p + d.yxy) - sdf(p - d.yxy),
                         sdf(p + d.yyx) - sdf(p - d.yyx)));
 #endif
+            }
+
+            /*!
+             * @brief Get depth of the specified position.
+             * @param [in] p  3D-position.
+             * @return Depth of the p.
+             */
+            float getDepth(float3 p)
+            {
+                const float4 projPos = UnityObjectToClipPos(float4(p, 1.0));
+                return projPos.z / projPos.w;
             }
 
             /*!
