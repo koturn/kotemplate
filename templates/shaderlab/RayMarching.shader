@@ -43,7 +43,9 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
     {
         Tags
         {
-            "RenderType" = "Opaque"
+            "Queue" = "AlphaTest"
+            "RenderType" = "Transparent"
+            "DisableBatching" = "True"
             "IgnoreProjector" = "True"
             "VRCFallback" = "Hidden"
         }
