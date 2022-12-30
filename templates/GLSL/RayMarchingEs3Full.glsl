@@ -1,3 +1,5 @@
+#version 300 es
+
 /*!
  * @brief Template GLSL file for Ray Marching.
  *
@@ -6,6 +8,7 @@
  * @file <+FILE+>
  * @version 0.1
  */
+
 precision mediump float;
 
 
@@ -15,34 +18,32 @@ precision mediump float;
 // Shadertoy
 // https://www.shadertoy.com/new#
 #define SHADERTOY 2
-// GLSL SANDBOX
-// https://glslsandbox.com/
-#define GLSLSANDBOX 3
 
 // Platform switch.
 #define PLATFORM VSCODE
 // #define PLATFORM SHADERTOY
-// #define PLATFORM GLSLSANDBOX
 
 
 #if PLATFORM == SHADERTOY
 #    define u_time iTime
 #    define u_mouse iMouse
 #    define u_resolution iResolution
-#elif PLATFORM == GLSLSANDBOX
-#    define u_time time
-#    define u_mouse mouse
-#    define u_resolution resolution
 #endif
 
 
-#if PLATFORM == VSCODE || PLATFORM == GLSLSANDBOX
+#if PLATFORM == VSCODE
 //! Elapsed seconds.
 uniform float u_time;
 //! Mouse position.
 uniform vec2 u_mouse;
 //! Screen resolution.
 uniform vec2 u_resolution;
+#endif
+
+
+#if PLATFORM != SHADERTOY
+//! Output color
+out vec4 FragColor;
 #endif
 
 
@@ -72,13 +73,36 @@ const vec3 kSpecularColor = vec3(0.5, 0.5, 0.5);
 //! Color of the object.
 const vec3 kAlbedo = vec3(1.0, 1.0, 1.0);
 
+// The ratio of the circumference of a circle to its diameter.
+const float kPi = acos(-1.0);
+// Twice of kPi.
+const float kPi2 = kPi * 2.0;
+// Reciprocal of kPi.
+const float kInvPi = 1.0 / kPi;
+// Reciprocal of kPi2.
+const float kInvPi2 = 1.0 / kPi2;
+
+/*!
+ * @brief Output of rayMarch().
+ */
+struct rmout
+{
+    //! Length of the ray.
+    float rayLength;
+    //! A flag whether the ray collided with an object or not.
+    bool isHit;
+};
+
 
 #ifndef DOXYGEN
 void mainImage(out vec4 fragColor, in vec2 fragCoord);
+rmout rayMarch(vec3 rayOrigin, vec3 rayDir);
 float map(vec3 p);
 float sdSphere(vec3 p, float size);
 vec3 getNormal(vec3 p);
-float sq(float x);
+mat2 rot(float angle);
+vec2 pmod(vec2 p, float r);
+float pown(float x, int n);
 #endif
 
 
@@ -88,7 +112,7 @@ float sq(float x);
  */
 void main(void)
 {
-    mainImage(/* out */ gl_FragColor, gl_FragCoord.xy);
+    mainImage(/* out */ FragColor, gl_FragCoord.xy);
 }
 #endif
 
@@ -103,45 +127,58 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
     vec2 position = (fragCoord.xy * 2.0 - u_resolution.xy) / min(u_resolution.x, u_resolution.y);
     vec3 rayDir = normalize(vec3(position, kScreenZ) - kCameraPos);
 
-    // Distance.
-    float d = 0.0;
-    // Total distance.
-    float t = 0.0;
-
-    // Marching Loop.
-    for (int i = 0; i < kMaxLoop; i++) {
-        vec3 rayPos = kCameraPos + rayDir * t;
-
-        d = map(rayPos);
-        t += d * kMarchingFactor;
-
-        // Break this loop if the ray goes too far or collides.
-        if (d < kMinRayLength || t > kMaxRayLength) {
-            break;
-        }
-    }
-
-    // Discard if it is determined that the ray is not in collision.
-    if (d > kMinRayLength) {
+    rmout ro = rayMarch(kCameraPos, rayDir);
+    if (!ro.isHit) {
 #if PLATFORM == SHADERTOY
-        fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        fragColor = vec4(0, 0, 0, 0);
         return;
 #else
         discard;
 #endif
     }
 
-    vec3 finalRayPos = kCameraPos + rayDir * t;
+    vec3 finalRayPos = kCameraPos + rayDir * ro.rayLength;
     vec3 normal = getNormal(finalRayPos);
 
     float nDotL = dot(normal, kLightDir);
 
-    vec3 diffuse = vec3(sq(0.5 * nDotL + 0.5)) * kLightCol;
+    vec3 diffuse = vec3(pown(0.5 * nDotL + 0.5, 2)) * kLightCol;
 
     vec3 viewDir = normalize(kCameraPos - finalRayPos);
     vec3 specular = pow(max(0.0, dot(normalize(kLightDir + viewDir), normal)), kSpecularPower) * kSpecularColor.xyz * kLightCol;
 
     fragColor = vec4(diffuse * kAlbedo + specular, 1.0);
+}
+
+
+/*!
+ * @brief Execute ray marching.
+ *
+ * @param [in] rayOrigin  Origin of the ray.
+ * @param [in] rayDir  Direction of the ray.
+ * @return Result of the ray marching.
+ */
+rmout rayMarch(vec3 rayOrigin, vec3 rayDir)
+{
+    rmout ro;
+    ro.rayLength = 0.0;
+    ro.isHit = false;
+
+    // Marching Loop.
+    for (int i = 0; i < kMaxLoop; i++) {
+        // Position of the tip of the ray.
+        float d = map((rayOrigin + rayDir * ro.rayLength));
+
+        ro.isHit = d < kMinRayLength;
+        ro.rayLength += d * kMarchingFactor;
+
+        // Break this loop if the ray goes too far or collides.
+        if (ro.isHit || ro.rayLength > kMaxRayLength) {
+            break;
+        }
+    }
+
+    return ro;
 }
 
 
@@ -153,7 +190,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 float map(vec3 p)
 {
     // <+CURSOR+>
-    return sdSphere(p, 0.5);
+    // return sdSphere(p, 0.5);
+    p.xy *= rot(u_time);
+    p.xy = pmod(p.xy, 3.0);
+    return sdSphere(p - vec3(0.2, 0.0, 0.0), 0.1);
 }
 
 
@@ -176,23 +216,9 @@ float sdSphere(vec3 p, float radius)
  */
 vec3 getNormal(vec3 p)
 {
-#if 1
-    const vec2 k = vec2(1.0, -1.0);
-    const vec2 kh = k * 0.0001;
-
-    return normalize(
-        k.xyy * map(p + kh.xyy)
-            + k.yxy * map(p + kh.yxy)
-            + k.yyx * map(p + kh.yyx)
-            + map(p + kh.xxx));
-#else
     const vec2 k = vec2(1.0, -1.0);
     const float h = 0.0001;
-    vec3 ks[4];
-    ks[0] = k.xyy;
-    ks[1] = k.yxy;
-    ks[2] = k.yyx;
-    ks[3] = k.xxx;
+    const vec3[4] ks = vec3[](k.xyy, k.yxy, k.yyx, k.xxx);
 
     vec3 normal = vec3(0.0, 0.0, 0.0);
 
@@ -201,16 +227,46 @@ vec3 getNormal(vec3 p)
     }
 
     return normalize(normal);
-#endif
 }
 
 
 /*!
- * @brief Calculate squared value.
- * @param [in] x  A value.
- * @return x * x
+ * @brief Get 2D rotation matrix.
+ * @param [in] angle  Rotation angle (radian).
+ * @return 2D rotation matrix.
  */
-float sq(float x)
+mat2 rot(float angle)
 {
-    return x * x;
+    float s = sin(angle);
+    float c = cos(angle);
+
+    return mat2(c, -s, s, c);
+}
+
+
+// r is splited number.
+vec2 pmod(vec2 p, float r)
+{
+    float a = atan(p.y, p.x) + kPi / r;
+    float n = kPi2 / r;
+    a = floor(a / n) * n;
+    return p * rot(-a);
+}
+
+
+/*!
+ * @brief Calculate pow(x, n) with exponentiation by squaring.
+ * @param [in] x  A value.
+ * @param [in] n  Exponent.
+ * @return pow(x, n)
+ */
+float pown(float x, int n)
+{
+    float v = 1.0;
+    for (; n > 0; n >>= 1) {
+        v *= (n & 1) == 0 ? 1.0 : x;
+        x *= x;
+    }
+
+    return v;
 }

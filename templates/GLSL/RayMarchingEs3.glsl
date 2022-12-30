@@ -1,3 +1,5 @@
+#version 300 es
+
 /*!
  * @brief Template GLSL file for Ray Marching.
  *
@@ -6,6 +8,7 @@
  * @file <+FILE+>
  * @version 0.1
  */
+
 precision mediump float;
 
 
@@ -15,34 +18,32 @@ precision mediump float;
 // Shadertoy
 // https://www.shadertoy.com/new#
 #define SHADERTOY 2
-// GLSL SANDBOX
-// https://glslsandbox.com/
-#define GLSLSANDBOX 3
 
 // Platform switch.
 #define PLATFORM VSCODE
 // #define PLATFORM SHADERTOY
-// #define PLATFORM GLSLSANDBOX
 
 
 #if PLATFORM == SHADERTOY
 #    define u_time iTime
 #    define u_mouse iMouse
 #    define u_resolution iResolution
-#elif PLATFORM == GLSLSANDBOX
-#    define u_time time
-#    define u_mouse mouse
-#    define u_resolution resolution
 #endif
 
 
-#if PLATFORM == VSCODE || PLATFORM == GLSLSANDBOX
+#if PLATFORM == VSCODE
 //! Elapsed seconds.
 uniform float u_time;
 //! Mouse position.
 uniform vec2 u_mouse;
 //! Screen resolution.
 uniform vec2 u_resolution;
+#endif
+
+
+#if PLATFORM != SHADERTOY
+//! Output color
+out vec4 FragColor;
 #endif
 
 
@@ -69,6 +70,7 @@ const float kSpecularPower = 50.0;
 //! Specular Color.
 const vec3 kSpecularColor = vec3(0.5, 0.5, 0.5);
 
+
 //! Color of the object.
 const vec3 kAlbedo = vec3(1.0, 1.0, 1.0);
 
@@ -88,7 +90,7 @@ float sq(float x);
  */
 void main(void)
 {
-    mainImage(/* out */ gl_FragColor, gl_FragCoord.xy);
+    mainImage(/* out */ FragColor, gl_FragCoord.xy);
 }
 #endif
 
@@ -176,23 +178,9 @@ float sdSphere(vec3 p, float radius)
  */
 vec3 getNormal(vec3 p)
 {
-#if 1
-    const vec2 k = vec2(1.0, -1.0);
-    const vec2 kh = k * 0.0001;
-
-    return normalize(
-        k.xyy * map(p + kh.xyy)
-            + k.yxy * map(p + kh.yxy)
-            + k.yyx * map(p + kh.yyx)
-            + map(p + kh.xxx));
-#else
     const vec2 k = vec2(1.0, -1.0);
     const float h = 0.0001;
-    vec3 ks[4];
-    ks[0] = k.xyy;
-    ks[1] = k.yxy;
-    ks[2] = k.yyx;
-    ks[3] = k.xxx;
+    const vec3[4] ks = vec3[](k.xyy, k.yxy, k.yyx, k.xxx);
 
     vec3 normal = vec3(0.0, 0.0, 0.0);
 
@@ -201,7 +189,6 @@ vec3 getNormal(vec3 p)
     }
 
     return normalize(normal);
-#endif
 }
 
 
