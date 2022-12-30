@@ -141,6 +141,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
         float3 boxProj1(float3 refDir, float3 worldPos);
         float3 boxProj(float3 refDir, float3 worldPos, float4 probePos, float4 boxMin, float4 boxMax);
         float sq(float x);
+        float3 normalizeEx(float3 v);
 
 
         //! Color of light.
@@ -179,7 +180,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             o.localPos = v.vertex.xyz;
             o.localSpaceCameraPos = worldToObjectPos(_WorldSpaceCameraPos) * _Scale;
 #ifdef USING_DIRECTIONAL_LIGHT
-            o.localSpaceLightPos = normalize(mul((float3x3)unity_WorldToObject, _WorldSpaceLightPos0.xyz) * _Scale);
+            o.localSpaceLightPos = normalizeEx(mul((float3x3)unity_WorldToObject, _WorldSpaceLightPos0.xyz) * _Scale);
 #else
             o.localSpaceLightPos = worldToObjectPos(_WorldSpaceLightPos0) * _Scale;
 #endif  // USING_DIRECTIONAL_LIGHT
@@ -566,6 +567,18 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
         {
             return x * x;
         }
+
+        /*!
+         * @brief Zero-Division avoided normalize.
+         * @param [in] v  A vector.
+         * @return normalized vector or zero vector.
+         */
+        float3 normalizeEx(float3 v)
+        {
+            const float vDotV = dot(v, v);
+            return vDotV == 0.0 ? v : (rsqrt(vDotV) * v);
+        }
+
         ENDCG
 
         Pass
