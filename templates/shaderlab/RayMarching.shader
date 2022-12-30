@@ -126,7 +126,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
 
         rmout rayMarch(float3 rayOrigin, float3 rayDir);
-        float sdf(float3 p);
+        float map(float3 p);
         float sdSphere(float3 p, float r);
         float3 getNormal(float3 p);
         half4 applyFog(float fogFactor, half4 color);
@@ -291,7 +291,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             // Marching Loop.
             for (int i = 0; i < _MaxLoop; i++) {
                 // Position of the tip of the ray.
-                const float d = sdf((rayOrigin + rayDir * ro.rayLength));
+                const float d = map((rayOrigin + rayDir * ro.rayLength));
 
                 ro.isHit = d < _MinRayLength;
                 ro.rayLength += d * _MarchingFactor;
@@ -311,7 +311,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
          * @param [in] p  Position of the tip of the ray.
          * @return Signed Distance to the objects.
          */
-        float sdf(float3 p)
+        float map(float3 p)
         {
             // <+CURSOR+>
             return sdSphere(p, 0.5);
@@ -344,10 +344,10 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
             static const float2 kh = k * 0.0001;
 
             return normalize(
-                k.xyy * sdf(p + kh.xyy)
-                    + k.yxy * sdf(p + kh.yxy)
-                    + k.yyx * sdf(p + kh.yyx)
-                    + sdf(p + kh.xxx));
+                k.xyy * map(p + kh.xyy)
+                    + k.yxy * map(p + kh.yxy)
+                    + k.yyx * map(p + kh.yyx)
+                    + map(p + kh.xxx));
 #elif defined(_NORMALCALCMODE_OPTIMIZED_LOOP)
             // SDF is called four times.
             // When the loop is not unrolled, there is only one SDF calling in the loop,
@@ -360,7 +360,7 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             UNITY_LOOP
             for (int i = 0; i < 4; i++) {
-                normal += ks[i] * sdf(p + ks[i] * h);
+                normal += ks[i] * map(p + ks[i] * h);
             }
             return normalize(normal);
 #else
@@ -370,9 +370,9 @@ Shader "<+AUTHOR+>/RayMarching/<+FILEBASE+>"
 
             return normalize(
                 float3(
-                    sdf(p + d.xyy) - sdf(p - d.xyy),
-                    sdf(p + d.yxy) - sdf(p - d.yxy),
-                    sdf(p + d.yyx) - sdf(p - d.yyx)));
+                    map(p + d.xyy) - map(p - d.xyy),
+                    map(p + d.yxy) - map(p - d.yxy),
+                    map(p + d.yyx) - map(p - d.yyx)));
 #endif  // defined(_NORMALCALCMODE_OPTIMIZED)
         }
 
