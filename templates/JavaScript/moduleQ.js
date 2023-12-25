@@ -28,7 +28,17 @@
     // <script>
     // Prefer window over self for add-on scripts.
     // Use self for non-windowed contexts.
-    var global = typeof window !== "undefined" ? window : self;
+    var global = typeof window !== 'undefined' ? window
+      : typeof self !== 'undefined' ? self
+      : null;
+    if (global === null) {
+      // SpiderMonkey or Rhino
+      try {
+        global = Function('return this')();
+      } catch (Error) {
+        throw new Error('This environment was not anticipated by <+FILE+>.');
+      }
+    }
 
     // Get the `window` object, save the previous <+FILE_PASCAL+> global
     // and initialize <+FILE_PASCAL+> as a global.
@@ -41,13 +51,6 @@
       global.<+FILE_PASCAL+> = previous<+FILE_PASCAL+>;
       return this;
     };
-  } else {
-    var global = Function('return this')();
-    if (global.print) {  // SpiderMonkey or Rhino
-      global.<+FILE_PASCAL+> = moduleDef();
-    } else {
-      throw new Error('This environment was not anticipated by <+FILE+>.');
-    }
   }
 })(function() {
   'use strict';
