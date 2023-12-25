@@ -33,7 +33,7 @@
     // Get the `window` object, save the previous <+FILE_PASCAL+> global
     // and initialize <+FILE_PASCAL+> as a global.
     var previous<+FILE_PASCAL+> = global.<+FILE_PASCAL+>;
-    global.<+FILE_PASCAL+> = definition();
+    global.<+FILE_PASCAL+> = moduleDef();
 
     // Add a noConflict function so <+FILE_PASCAL+> can be removed from
     // the global namespace.
@@ -52,14 +52,38 @@
 })(function() {
   'use strict';
 
-  function <+FILE_PASCAL+>() {};
+  /**
+   * constructor
+   * @param {number} arg Argument
+   */
+  function <+FILE_PASCAL+>(arg) {
+    // Define and initialize member variables.
+    this._memberVar01 = arg;
+    this._memberVar02 = 42;
 
+    // Define properties.
+    Object.defineProperty(this, 'prop', {
+      get: function() {
+        return this._memberVar01;
+      },
+      set: function(value) {
+        this._memberVar01 = value;
+      },
+    });
+  };
+
+  /**
+   * A method.
+   */
   <+FILE_PASCAL+>.prototype.method = function() {
     <+CURSOR+>
   };
 
+  /**
+   * noConflict() for non global.
+   */
   <+FILE_PASCAL+>.noConflict = function() {
-    throw new Error("<+FILE_PASCAL+>.noConflict only works when <+FILE_PASCAL+> is used as a global");
+    throw new Error('<+FILE_PASCAL+>.noConflict only works when <+FILE_PASCAL+> is used as a global');
   };
 
   return <+FILE_PASCAL+>;
