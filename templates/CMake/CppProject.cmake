@@ -215,7 +215,7 @@ else()
     endif()
 
     set(C_FLAGS "-pipe" "${C_WARNING_FLAGS}")
-    set(C_FLAGS_DEBUG "-g3" "-O0" "-ftrapv -fstack-protector-all")
+    set(C_FLAGS_DEBUG "-g3" "-O0" "-ftrapv" "-fstack-protector-all")
     set(C_FLAGS_RELEASE "-O3")
     set(C_FLAGS_MINSIZEREL "-Os")
     if(SYSTEM_PROCESSOR_IS_X86 OR SYSTEM_PROCESSOR_IS_X64)
