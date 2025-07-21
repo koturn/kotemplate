@@ -42,13 +42,17 @@
 
     // Get the `window` object, save the previous <+FILE_PASCAL+> global
     // and initialize <+FILE_PASCAL+> as a global.
-    const previous<+FILE_PASCAL+> = global.<+FILE_PASCAL+>;
+    const prevDefinition = global.<+FILE_PASCAL+>;
     global.<+FILE_PASCAL+> = moduleDef();
 
     // Add a noConflict function so <+FILE_PASCAL+> can be removed from
     // the global namespace.
     global.<+FILE_PASCAL+>.noConflict = function() {
-      global.<+FILE_PASCAL+> = previous<+FILE_PASCAL+>;
+      if (typeof prevDefinition === 'undefined') {
+        delete global.<+FILE_PASCAL+>;
+      } else {
+        global.<+FILE_PASCAL+> = prevDefinition;
+      }
       return this;
     };
   }
